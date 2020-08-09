@@ -1,0 +1,184 @@
+
+-------------------------------------------------------------------------game theory(gfg)--------------------------------------------------------------
+
+(1)Find winner of the Game of Nim
+
+In Game of Nim, two players take turns removing objects from heaps or the pile of stones.
+Suppose two players A and B are playing the game. Each is allowed to take only one stone from the pile. The player who picks the last stone of the pile 
+will win the game. Given N the number of stones in the pile, the task is to find the winner, if player A starts the game .
+
+solution:
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--)
+	{
+	    int n;
+	    cin>>n;
+	    if(n%2==0) cout<<"Player B\n";
+	    else
+	    cout<<"Player A\n";
+	}
+	return 0;
+}
+
+
+(2)Game of cells (good logic)
+
+Given a NxNxN grid. Harvey and Mike are playing a game. The rule of the game is simple. Each of them in their turn choses a cell and mark it with their initials. 
+But the catch here is once a cell is marked they can't chose any of the adjacent(sharing a common face not the just the edge) cell to it. Since Harvey is senior he 
+goes first. 
+Both of them play optimally. The player with no move remaining loses the game. If harvey wins the game print “Harvey” otherwise print “Mike”.
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--)
+	{
+	    long long n;
+	    cin>>n;
+	    if(n%2==0) cout<<"Mike\n";
+	    else
+	    cout<<"Harvey\n";
+	}
+	return 0;
+}
+
+Explnation: If number is odd Harvey wins else Mike wins. If number is odd Harvey will mark the center and then copy whatever mike does for every move he will have 
+one move because of symmetry. The same apply for Mike in even case .
+
+
+(3) coins and game (This is tricky and funny because of the conspiracies between the people,don't get bogged out by the problem statement)
+
+There are N coins and K people. Each of them can propose a method of distribution of the coins amongst themselves when their chance comes and a vote will occur in favour or against his distribution method between all those members. The person proposing that method of distribution wins the vote if he gets equal or more votes in favour than in against his proposal else he loses. Loosing he would be eliminated and then the next member will now propose his method of distribution amongst the remaining members.
+
+Each person while proposing his method of distribution wants to get the maximum number of coins as well as win the vote.
+
+Each person is smart and knows all the possibilities that may occur from their vote and will cast their vote accordingly.
+
+The first proposal will always be given by 1 if he loses will be followed by 2 and so on (till the Kth person).
+
+In the distribution of the 1st person print the amount of coins each of K people is proposed to get so that he wins the vote.
+
+#include<bits/stdc++.h>
+using namespace std;
+int main(){
+    int t;
+    cin>>t;
+    while(t--){
+        int k,n,res;
+        cin>>k>>n;
+        if(n%2!=0) res=n/2;
+        else res=n/2-1;
+        
+        cout<<k-res<<" ";
+        for(int i=1;i<n;i++){
+            if(i%2==0) cout<<1<<" ";
+            else cout<<0<<" ";
+        }
+        cout<<endl;
+    }
+	return 0;
+}
+
+
+(4) variation in nim game
+
+You are given an array A[] of n-elements. There are two players Alice and Bob. A Player can choose any of element from an array and remove it. 
+If the bitwise XOR of all remaining elements equals 0 after removal of the selected element, then that player loses.
+Note: Each player play game alternately. Find out a winner if both of the players play optimally. Alice starts the game first. 
+In case one-element in array consider its value as the XOR of an array.
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--){
+	    int n;
+	    cin>>n;
+	    vector<int>a(n);
+	    int xor_res = 0;
+	    for(int i=0;i<n;i++) {
+	        cin>>a[i];
+	        xor_res ^= a[i];
+	    }
+	    if(xor_res == 0) cout<<"2\n";
+	    else{
+	        if(n%2 == 0) cout<<"1\n";
+	        else
+	        cout<<"2\n";
+	    }
+	}
+	return 0;
+}
+
+
+(5) Cycle race
+
+In CycleLand Jack and Jelly are two friends. They want to go CycleSchool by a cycle ( Assume that they live in same house). Distance between CycleSchool and their house is 'N' km. Jack and Jelly both like their classmate Jenny. They decided to play a game such that the winner will get a chance to sit with Jenny in school. Rules of game are as follows:
+  - Initially Jelly will ride cycle.
+  - They will ride cycle one by one.
+  - When one is riding cycle other will sit on the carrier of cycle.  
+  - In each ride they can ride cycle exactly 1, 2 or 4 km. One cannot ride more than remaining distance.      
+  - One who reaches school riding cycle will get a chance to sit with Jenny.
+Both play optimally. You have to find who will win this game.
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--)
+	{
+	    int n;
+	    cin>>n;
+	    if(n%3 == 0) cout<<"JACK\n";
+	    else
+	    cout<<"JELLY\n";
+	}
+	return 0;
+}
+
+
+(6) Pots of gold game (same optimal strategy for a game)
+
+Two player X and Y are playing a game in which there are pots of gold arranged in a  line, each containing some gold coins. 
+They get alternating turns in which the player can pick a pot from one of the ends of the line. The winner is the player who has a higher number of 
+coins at the end. The objective is to maximize the number of coins collected by X, assuming Y also plays optimally. You are required to complete the method 
+maxCoins which returns an integer denoting the max coins X could get while playing the game. You may assume that X starts the game. 
+
+
+
+int f(int A[],int N,int i,int j,vector<vector<int> >&dp)
+{
+    if(i>j)
+        return 0;
+    if(i==j)return A[i];
+    if(dp[i][j]!=-1)
+        return dp[i][j];
+    dp[i][j]=max(A[i]+min(f(A,N,i+1,j-1,dp),f(A,N,i+2,j,dp)),A[j]+min(f(A,N,i+1,j-1,dp),f(A,N,i,j-2,dp)));
+    return dp[i][j];
+}
+
+
+int maxCoins(int A[],int N)
+{
+   //Your code here
+    int total=0;
+    for(int i=0;i<N;i++){
+        total+=A[i];
+    }
+    //cout<<total<<" ";
+    vector<vector<int> >dp(N+1,vector<int>(N+1,-1));
+    int val = f(A,N,0,N-1,dp);
+    return val;
+}

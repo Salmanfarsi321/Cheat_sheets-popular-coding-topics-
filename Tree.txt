@@ -1,0 +1,1020 @@
+
+---------------------------------------------------------------------------Tree--------------------------------------------------------------------------------------
+
+(1) Iterative preorder traversal
+
+Approach1: O(n) time complexity and O(n) space complexity
+
+vector<int> Solution::preorderTraversal(TreeNode* A) {
+  vector<int>ans;
+    if(A == NULL) return ans;
+    stack<TreeNode*>stk;
+    stk.push(A);
+    while(!stk.empty()){
+        TreeNode* curr = stk.top();
+        ans.push_back(curr->val);
+        stk.pop();
+        if(curr->right)			//first right then left because when popping out left node will come first (obvious stack property)
+        stk.push(curr->right);
+        if(curr->left)
+        stk.push(curr->left);
+    }
+    return ans;
+}
+
+//space efficient
+Approach2:O(n) time complexity and O(H) space complexity (where H is the height of the tree)
+
+
+vector<int> Solution::preorderTraversal(TreeNode* A) {
+    vector<int>ans;
+    if(A == NULL) return ans;
+    stack<TreeNode*>stk;
+    TreeNode* curr = A;
+    while(!stk.empty() || curr){
+        if(curr == NULL){
+            curr = stk.top();
+            stk.pop();
+        }
+        else{
+            ans.push_back(curr->val);
+            if(curr->right)
+            stk.push(curr->right);
+            curr = curr->left;
+        }
+    }
+    return ans;
+}
+
+
+(2) Iterative postorder traversal
+
+Approach1: O(n) time complexity and O(n) space complexity
+
+
+vector<int> Solution::postorderTraversal(TreeNode* A) {
+    vector<int>ans;
+    if(A == NULL) return ans;
+    stack<TreeNode*>stk;
+    stk.push(A);
+    while(!stk.empty()){
+        TreeNode* curr = stk.top();
+        stk.pop();
+        ans.push_back(curr->val);
+        if(curr->left)
+        stk.push(curr->left);
+        if(curr->right)		
+        stk.push(curr->right);
+    }
+    reverse(ans.begin(),ans.end());
+    return ans;
+}
+
+
+(3)Iterative Inorder Traversal
+
+ 
+vector<int> Solution::inorderTraversal(TreeNode* A) {
+    vector<int>ans;
+    stack<TreeNode*>stk;
+    TreeNode* curr = A;
+    while(!stk.empty() || curr){
+        if(curr){
+            stk.push(curr);
+            curr = curr->left;
+        }
+        else{
+            TreeNode* temp = stk.top();
+            ans.push_back(temp->val);
+            stk.pop();
+            curr = temp->right;
+        }
+    }
+    return ans;
+}
+
+
+(4) Diagonal traversal of binary tree
+
+Input 1:
+
+            1
+          /   \
+         4      2
+        / \      \
+       8   5      3
+          / \    /
+         9   7  6
+Input 2:
+
+             11
+          /     \
+         20      12
+        / \       \
+       1   15      13
+          /  \     /
+         2    17  16
+          \   /
+          22 34
+
+
+Example Output
+Output 1:
+
+ [1, 2, 3, 4, 5, 7, 6, 8, 9]
+Output 2:
+
+ [11, 12, 13, 20, 15, 17, 16, 1, 2, 22, 34]
+
+
+void fun(TreeNode* root,int d,map<int,vector<int> >&mp){
+    if(root == NULL) return;
+    mp[d].push_back(root->val);
+    fun(root->left,d+1,mp);
+    fun(root->right,d,mp);
+}
+
+vector<int> Solution::solve(TreeNode* A) {
+    vector<int>ans;
+    map<int,vector<int> >mp;
+    fun(A,0,mp);
+    for(auto it=mp.begin();it!=mp.end();it++){
+        auto vec = it->second;
+        for(int i=0;i<vec.size();i++)
+        ans.push_back(vec[i]);
+    }
+    return ans;
+}
+
+
+
+(5) Vertical order traversal 
+
+Ex-   6
+    /   \
+   3     7
+  / \     \
+ 2   5     9
+
+outpit: 
+[
+    [2],
+    [3],
+    [6, 5],
+    [7],
+    [9]
+ ]
+
+
+
+Ex-          1			Approaach1 prints 12 before 9 therefore it is wrong but if we do level order traversal as in approach2 ,we will get right output
+          /     \
+         2       3
+        /  \    /  \
+       4    5  6    7
+                \  /  \
+                 8 10  9 
+                     \
+                     11
+                       \
+                        12  
+
+Approach1:
+//wrong solution as the nodes which are int he same vertival 
+void fun(TreeNode* root,int d,map<int,vector<int> >&mp){
+    if(root == NULL) return;
+    mp[d].push_back(root->val);
+    fun(root->right,d+1,mp);
+    fun(root->left,d-1,mp);
+}
+
+vector<vector<int> > Solution::verticalOrderTraversal(TreeNode* A) {
+    vector<vector<int> >ans;
+    map<int,vector<int> >mp;
+    fun(A,0,mp);
+    for(auto it=mp.begin();it!=mp.end();it++){
+        auto vec = it->second;
+        ans.push_back(vec);
+    }
+    return ans;
+}
+
+Approach2:
+//correct solution
+vector<vector<int> > Solution::verticalOrderTraversal(TreeNode* A) {
+    vector<vector<int> >ans;
+    map<int,vector<int> >mp;
+    queue<pair<TreeNode*,int> >q;
+    if(A == NULL) return ans;
+    q.push({A,0});
+    while(!q.empty()){
+        TreeNode* curr_node = q.front().first;
+        int curr_level = q.front().second;
+        mp[curr_level].push_back(curr_node->val);
+        q.pop();
+        if(curr_node->left) q.push({curr_node->left,curr_level-1});
+        if(curr_node->right) q.push({curr_node->right,curr_level+1});
+    }
+    for(auto it=mp.begin();it!=mp.end();it++){
+        ans.push_back(it->second);
+    }
+    return ans;
+}
+
+
+(6) Cousins in a binary tree
+
+ A =
+
+           1
+         /   \
+        2     3
+       / \   / \
+      4   5 6   7 
+
+
+B = 5
+output: [6, 7]
+
+vector<int> Solution::solve(TreeNode* A, int B) {
+   vector<int>ans;
+   vector<pair<TreeNode*,int> >v;
+   if(A->val == B) return ans;
+   queue<pair<TreeNode*,int> >q;
+   q.push({A,0});
+   TreeNode* par;
+   int level;
+   while(!q.empty()){
+        pair<TreeNode*,int> curr = q.front();
+        q.pop();
+        v.push_back(curr);
+        if(curr.first->left){
+            q.push({curr.first->left,curr.second+1});
+            if(curr.first->left->val == B){
+                level = curr.second+1;
+                par = curr.first;
+            }
+        }
+        if(curr.first->right){
+            q.push({curr.first->right,curr.second+1});
+            if(curr.first->right->val == B){
+                level = curr.second+1;
+                par = curr.first;
+            }
+        }
+   }
+    for(int i=0;i<v.size();i++){
+            if(par->left!=v[i].first && par->right!=v[i].first && v[i].second==level)
+            ans.push_back(v[i].first->val);
+    }
+   return ans;
+}
+
+
+(7) Right view of binary tree
+
+Ex-
+        1
+      /   \
+     2    3
+    / \  / \
+   4   5 6  7
+  /
+ 8 
+
+output: [1, 3, 7, 8]
+
+vector<int> Solution::solve(TreeNode* A) {
+    vector<int>ans;
+    queue<TreeNode*>q;
+    q.push(A);
+    while(!q.empty()){
+        int sz = q.size();
+        while(sz--){
+            TreeNode* curr = q.front();
+            if(sz == 0) ans.push_back(curr->val);
+            q.pop();
+            if(curr -> left) q.push(curr->left);
+            if(curr -> right) q.push(curr->right);
+        }
+    }
+    return ans;
+}
+
+
+(8) ZigZag level order traversal
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+
+[
+         [3],
+         [20, 9],
+         [15, 7]
+]
+
+vector<vector<int> > Solution::zigzagLevelOrder(TreeNode* A) {
+    vector<vector<int> >ans;
+    queue<TreeNode*>q;
+    q.push(A);
+    int flag = 1;
+    while(!q.empty()){
+        int sz = q.size();
+        vector<int>res;
+        while(sz--){
+            TreeNode* curr = q.front();
+            res.push_back(curr->val);
+            q.pop();
+            if(curr->left) q.push(curr->left);
+            if(curr->right) q.push(curr->right);
+        }
+        if(flag)
+        ans.push_back(res);
+        else{
+            reverse(res.begin(),res.end());
+            ans.push_back(res);
+        }
+        flag = !flag;
+    }
+    return ans;
+}
+
+
+(9) Populate next right pointers
+
+Given the following binary tree,
+
+         1
+       /  \
+      2    3
+     / \  / \
+    4  5  6  7
+After calling your function, the tree should look like:
+
+         1 -> NULL
+       /  \
+      2 -> 3 -> NULL
+     / \  / \
+    4->5->6->7 -> NULL
+
+void Solution::connect(TreeLinkNode* A) {
+    queue<TreeLinkNode*>q;
+    q.push(A);
+    while(!q.empty()){
+        int sz = q.size();
+        TreeLinkNode* prev = NULL;
+        while(sz--){
+            TreeLinkNode* curr = q.front();
+            if(prev != NULL){
+                prev->next = curr;
+            }
+            q.pop();
+            if(curr->left)
+            q.push(curr->left);
+            if(curr->right)
+            q.push(curr->right);
+            prev = curr;
+        }
+        prev->next = NULL;
+    }
+}
+
+
+(10)Remove half nodes (i.e node containing only one child)
+
+//level order traversal approach (done by me)
+
+TreeNode* Solution::solve(TreeNode* A) {
+    queue<pair<TreeNode*,TreeNode*> >q;
+    q.push({A,NULL});
+    while(!q.empty()){
+        TreeNode* curr = q.front().first;
+        TreeNode* par = q.front().second;
+        q.pop();
+        bool l = false,r=false;
+        if(curr->left){
+            l = true;
+        }
+        if(curr->right){
+            r = true;
+        }
+        if(par && par->left==curr && l && !r){			//if curr node is in left subtree
+            par->left = curr->left;
+            q.push({curr->left,par});
+        }
+        else if(par && par->left==curr && !l && r){		//if curr node is in left subtree
+            par->left = curr->right;
+            q.push({curr->right,par});
+        }
+        else if(par && par->right==curr && l && !r){		//if curr node is in right subtree
+            par->right = curr->left;
+            q.push({curr->left,par});
+        }
+        else if(par && par->right==curr && !l && r){		//if curr node is in right subtree
+            par->right = curr->right;
+            q.push({curr->right,par});
+        }
+        else if(!par && l && !r){		//if root node have one child
+            return curr->left;
+        }
+        else if(!par && !l && r){		//if root node have one child
+            return curr->right;
+        }
+        if(curr->left)
+        q.push({curr->left,curr});
+        if(curr->right)
+        q.push({curr->right,curr});
+         
+    }
+    return A;
+}
+
+
+//recursive approach
+struct TreeNode* RemoveHalfNodes(struct TreeNode* root)
+{
+if (root==NULL)
+return NULL;
+
+root->left  = RemoveHalfNodes(root->left); 
+root->right = RemoveHalfNodes(root->right); 
+
+if (root->left==NULL && root->right==NULL) 
+    return root; 
+if (root->left==NULL) 
+{ 
+    struct TreeNode *new_root = root->right; 
+    free(root); // To avoid memory leak 
+    return new_root; 
+} 
+if (root->right==NULL) 
+{ 
+    struct TreeNode *new_root = root->left; 
+    free(root); // To avoid memory leak 
+    return new_root; 
+} 
+
+return root; 
+}
+
+
+TreeNode* Solution::solve(TreeNode* A) {
+A=RemoveHalfNodes(A);
+return A;
+};
+
+
+(11)Path to given node (Nice one)
+
+Given a Binary Tree A containing N nodes.
+
+You need to find the path from Root to a given node B.
+
+ A =
+
+           1
+         /   \
+        2     3
+       / \   / \
+      4   5 6   7 
+
+
+B = 5
+[1, 2, 5]
+
+bool fun(TreeNode*A,vector<int>&ans,int B){
+    if(A==NULL) return false;
+    ans.push_back(A->val);
+    if(A->val == B)
+    return true;
+    if(fun(A->left,ans,B) || fun(A->right,ans,B) ) return true;
+    else{
+    ans.pop_back();
+    return false;
+    }
+}
+
+vector<int> Solution::solve(TreeNode* A, int B) {
+    vector<int>ans;
+    fun(A,ans,B);
+    return ans;
+}
+
+
+(12) Balanced binary tree
+
+Given a binary tree, determine if it is height-balanced.
+
+Height-balanced binary tree : is defined as a binary tree in which the depth of the two subtrees of every node never differ by more than 1. 
+
+int height(TreeNode* A){
+    if(A == NULL) return 0;
+    return 1+max(height(A->left),height(A->right));
+}
+
+bool fun(TreeNode* A){
+    if(A == NULL) return 1;
+    int l = height(A->left);
+    int r = height(A->right);
+    if(abs(l-r) > 1)
+    return 0;
+    return fun(A->left) && fun(A->right);
+}
+
+int Solution::isBalanced(TreeNode* A) {
+    return fun(A);
+}
+
+
+(13) Path sum
+
+Given a binary tree and a sum, determine if the tree has a root-to-leaf path such that adding up all the values along the path equals the given sum.
+
+Example :
+
+Given the below binary tree and sum = 22,
+
+              5
+             / \
+            4   8
+           /   / \
+          11  13  4
+         /  \      \
+        7    2      1
+
+return true, as there exist a root-to-leaf path 5->4->11->2 which sum is 22
+
+bool fun(TreeNode* A,int B){
+    if(A == NULL) return 0;
+    if(B == A->val && A->left==NULL && A->right==NULL) return 1;
+    return fun(A->left,B-A->val) || fun(A->right,B-A->val);
+}
+
+int Solution::hasPathSum(TreeNode* A, int B) {
+    return fun(A,B);
+}
+
+
+(14) Root to leaf path with sum
+
+Given a binary tree and a sum, find all root-to-leaf paths where each path’s sum equals the given sum.
+
+For example:
+Given the below binary tree and sum = 22,
+
+              5
+             / \
+            4   8
+           /   / \
+          11  13  4
+         /  \    / \
+        7    2  5   1
+return
+
+[
+   [5,4,11,2],
+   [5,8,4,5]
+]
+
+
+
+void fun(TreeNode* A,int B,vector<int>&res,vector<vector<int> >&ans){
+    if(A == NULL) return;
+    res.push_back(A->val);
+    if(A->left == NULL && A->right == NULL && B == A->val){
+        ans.push_back(res);
+    } 
+    fun(A->left,B-A->val,res,ans);
+    fun(A->right,B-A->val,res,ans);
+    res.pop_back();
+}
+
+vector<vector<int> > Solution::pathSum(TreeNode* A, int B) {
+    vector<vector<int> >ans; 
+    vector<int>res;
+    fun(A,B,res,ans);
+    return ans;
+}
+
+(15) Max depth of binary tree
+
+int Solution::maxDepth(TreeNode* A) {
+    if(A == NULL)
+    return 0;
+    return 1 + max(maxDepth(A->left),maxDepth(A->right));
+}
+
+
+(16) Min depth of binary tree (Not as trivial as max depth)
+
+int Solution::minDepth(TreeNode* A) {
+    if(A == NULL)
+    return 0;
+    int l = minDepth(A->left);
+    if(l == 0) l = INT_MAX;
+    int r = minDepth(A->right);
+    if(r == 0) r = INT_MAX;
+    int mn = min(l,r);
+    if(mn == INT_MAX) mn = 0;
+    return 1 + mn;
+}
+
+
+(17) Sum root to leaf numbers
+
+Given a binary tree containing digits from 0-9 only, each root-to-leaf path could represent a number.
+
+An example is the root-to-leaf path 1->2->3 which represents the number 123.
+
+Find the total sum of all root-to-leaf numbers % 1003.
+
+Example :
+
+    1
+   / \
+  2   3
+The root-to-leaf path 1->2 represents the number 12.
+The root-to-leaf path 1->3 represents the number 13.
+
+Return the sum = (12 + 13) % 1003 = 25 % 1003 = 25
+ 
+int fun(TreeNode* A,int sum){
+    if(A == NULL) return 0;
+    if(A->left == NULL && A->right == NULL){
+        return (sum*10 + A->val)%1003;
+    }
+    int l = fun(A->left,(sum*10 + A->val)%1003);
+    int r = fun(A->right,(sum*10 + A->val)%1003);
+    return (l + r)%1003;
+}
+
+int Solution::sumNumbers(TreeNode* A) {
+    return fun(A,0);
+}
+
+
+(18)Valid BSt from Preorder
+
+Approach:An Efficient Solution can solve this problem in O(N) time.
+The idea is to use a stack. This problem is similar to Next (or closest) Greater Element problem.
+Here we find the next greater element and after finding next greater, if we find a smaller element, then return false.
+
+int Solution::solve(vector<int> &pre) {
+    
+     // Create an empty stack 
+    stack<int> s; 
+    int n=pre.size();
+  
+    // Initialize current root as minimum possible 
+    // value 
+    int root = INT_MIN; 
+  
+    // Traverse given array 
+    for (int i=0; i<n; i++) 
+    { 
+        // If we find a node who is on right side 
+        // and smaller than root, return false 
+        if (pre[i] < root) 
+            return false; 
+  
+        // If pre[i] is in right subtree of stack top, 
+        // Keep removing items smaller than pre[i] 
+        // and make the last removed item as new 
+        // root. 
+        while (!s.empty() && s.top()<pre[i]) 
+        { 
+            root = s.top(); 
+            s.pop(); 
+        } 
+  
+        // At this point either stack is empty or 
+        // pre[i] is smaller than root, push pre[i] 
+        s.push(pre[i]); 
+    } 
+    return true; 
+}
+
+
+(19)kth smallest element in the tree
+
+
+//Approach1:O(N) time and O(N) space using the property that inorder traversal gives sorted array
+
+void fun(TreeNode* A,int B,vector<int>&ans){
+    if(A == NULL)
+    return;
+    fun(A->left,B,ans);
+    ans.push_back(A->val);
+    fun(A->right,B,ans);
+}
+
+int Solution::kthsmallest(TreeNode* A, int B) {
+    vector<int>ans;
+    fun(A,B,ans);
+    return ans[B-1];
+}
+
+(20) 2 sum BST
+
+Given a binary search tree T, where each node contains a positive integer, and an integer K, you have to find whether or not there exist two different nodes A 
+and B such that A.value + B.value = K.
+
+Return 1 to denote that two such nodes exist. Return 0, otherwise.
+
+Notes
+
+Your solution should run in linear time and not take memory more than O(height of T).
+Assume all values in BST are distinct.
+
+
+//partially correct solution (leads to TLE)
+
+
+bool fun(TreeNode*root1,TreeNode*root2,int B){
+    if(!root1 || !root2) return false;
+    if(root1 == root2) return false;
+    int sum = root1->val + root2->val;
+    if(sum == B) return true;
+    if(sum > B) return fun(root1->left,root2,B) || fun(root1,root2->left,B); //TLE reason: If the first call to root1->left returns true ,no need to check for root2->left
+    else
+    return fun(root1->right,root2,B) || fun(root1,root2->right,B);	// If the first call to root1->right returns true ,no need to check for root2->right
+}
+
+int Solution::t2Sum(TreeNode* A, int B) {
+    if(A == NULL) return false;
+    if(B/2 < A->val)
+    return fun(A->left,A,B);
+    else
+    return fun(A->right,A,B);
+}
+
+//correct solution
+
+int fun(TreeNode*root1,TreeNode*root2,int B){
+    if(!root1 || !root2) return 0;
+    if(root1 == root2) return 0;
+    int sum = root1->val + root2->val;
+    if(sum == B) return 1;
+    if(sum > B) {
+        if(fun(root1->left,root2,B) == 0)
+        return fun(root1,root2->left,B);
+        else
+        return 1;
+    }
+    else{
+        if(fun(root1->right,root2,r B) == 0)
+        return fun(root1,root2->right,B);
+        else
+        return 1;
+    }
+}
+
+int Solution::t2Sum(TreeNode* A, int B) {
+    if(A == NULL) return 0;
+    if(B/2 < A->val)
+    return fun(A->left,A,B);
+    else
+    return fun(A->right,A,B);
+}
+
+(21)BST iterator
+
+Approach1: O(n) time and O(n) space
+
+priority_queue<int,vector<int>,greater<int> >pq;
+
+void fun(TreeNode* root){
+    if(root == NULL) return;
+    fun(root->left);
+    pq.push(root->val);
+    fun(root->right);
+}
+
+BSTIterator::BSTIterator(TreeNode *root) {
+    fun(root);
+}
+
+/** @return whether we have a next smallest number */
+bool BSTIterator::hasNext() {
+    if(pq.empty()) return false;
+    return true;
+}
+
+/** @return the next smallest number */
+int BSTIterator::next() {
+    int x = pq.top();
+    pq.pop();
+    return x;
+}
+
+/**
+ * Your BSTIterator will be called like this:
+ * BSTIterator i = BSTIterator(root);
+ * while (i.hasNext()) cout << i.next();
+ */
+
+
+Approach2: O(n) time and O(h) space
+
+
+stack<TreeNode*>stk;
+
+void fun(TreeNode* root){
+    while(root){
+        stk.push(root);
+        root = root->left;
+    }
+}
+
+BSTIterator::BSTIterator(TreeNode *root) {
+    fun(root);
+}
+
+/** @return whether we have a next smallest number */
+bool BSTIterator::hasNext() {
+    if(stk.empty()) return false;
+    return true;
+}
+
+/** @return the next smallest number */
+int BSTIterator::next() {
+    TreeNode* x = stk.top();
+    stk.pop();
+    fun(x->right);
+    return x->val;
+}
+
+
+(22) Recover binary search tree
+
+ 
+void fun(TreeNode* A,TreeNode* &prev,TreeNode* &first,TreeNode* &second){
+    if(A == NULL) return;
+    fun(A->left,prev,first,second);
+    if(prev!=NULL){
+       if(prev->val > A->val){
+           if(first == NULL) first = prev;
+           second = A;
+       }
+    }
+    prev = A;
+    fun(A->right,prev,first,second);
+}
+
+vector<int> Solution::recoverTree(TreeNode* A) {
+    vector<int>res;
+    TreeNode* prev = NULL;
+    TreeNode* first = NULL;
+    TreeNode* second = NULL;
+    fun(A,prev,first,second);
+    res.push_back(min(first->val,second->val));
+    res.push_back(max(first->val,second->val));
+    return res;
+}
+
+
+
+(23) Least common ancestor (one of the best question on trees)
+
+
+        _______3______
+       /              \
+    ___5__          ___1__
+   /      \        /      \
+   6      _2_     0        8
+         /   \
+         7    4
+
+For the above tree, the LCA of nodes 5 and 1 is 3.
+
+
+//Approach1
+int find(TreeNode* root,int x){
+    if(root == NULL) return 0;
+    if(root->val == x) return 1;
+    return find(root->left,x) || find(root->right,x);
+}
+ 
+TreeNode* fun(TreeNode* root,int A,int B){
+    if(root == NULL || root->val == A || root->val == B) return root;
+    TreeNode* l=fun(root->left,A,B);
+    TreeNode* r=fun(root->right,A,B);
+    if(l && r)
+    return root;
+    return (l == NULL) ? r : l;
+}
+
+int Solution::lca(TreeNode* A, int B, int C) {
+    if(!find(A,B) || !find(A,C))
+    return -1;
+    TreeNode* node = fun(A,B,C);
+    if(node) return node->val;
+    return -1;
+}
+
+
+
+(24)
+
+//wrong
+TreeNode* fun(TreeNode* A,TreeNode* prev){
+    if(A == NULL)
+    return A;
+    if(prev!=NULL){
+        prev -> right = A;
+        prev -> left = NULL;
+    }
+    prev = A;
+    fun(A->left,prev);
+    fun(A->right,prev);
+    
+}
+
+//correct
+TreeNode* Solution::flatten(TreeNode* A) {
+    TreeNode* prev = NULL;
+   return fun(A,prev);
+}
+
+ void flatten(TreeNode *root) {
+
+        if (!root) return;
+
+        TreeNode* node = root;
+        while (node) {
+
+            // Attatches the right sub-tree to the rightmost leaf of the left sub-tree:
+            if (node->left) {
+
+                TreeNode *rightMost = node->left;
+                while (rightMost->right) {
+
+                    rightMost = rightMost->right;
+                }
+                rightMost->right = node->right;
+
+                // Makes the left sub-tree to the right sub-tree:
+                node->right = node->left;
+                node->left = NULL;
+            }
+
+            // Flatten the rest of the tree:
+            node = node->right;
+        }     
+    }
+
+(25) #### valid binary search tree #### ------------------>Checkpoint question (Important)
+
+Approach1:
+int fun(TreeNode* root,int min,int max){
+    if(root == NULL) return 1;
+    return (root->val > min && root->val < max) && fun(root->left,min,root->val) && 
+    fun(root->right,root->val,max);
+}
+
+int Solution::isValidBST(TreeNode* A) {
+    return fun(A,INT_MIN,INT_MAX);
+}
+
+//Approach2: (if we do an inorder traversal then the prev node's value should be less than curr node's value)
+
+int fun(TreeNode* root,TreeNode* &prev){
+    if(root == NULL) return 1;
+    if(!fun(root->left,prev)) return 0;
+    if(prev){
+        if(prev->val >= root->val)
+        return 0;
+    }
+    prev = root;
+    return fun(root->right,prev);
+}
+
+int Solution::isValidBST(TreeNode* A) {
+    TreeNode* prev = NULL;
+    return fun(A,prev);
+}
+
+//same as approach2 but little different implementation
+
+int fun(TreeNode* root,TreeNode* &prev){
+    if(root == NULL) return 1;
+    int l=fun(root->left,prev);
+    if(prev){
+        if(prev->val >= root->val)
+        return 0;
+    }
+    prev = root;
+    int r=fun(root->right,prev);
+    return l&&r;
+}
+
+int Solution::isValidBST(TreeNode* A) {
+    TreeNode* prev = NULL;
+    return fun(A,prev);
+}
+
+
+(26)

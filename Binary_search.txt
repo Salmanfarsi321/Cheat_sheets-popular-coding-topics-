@@ -1,0 +1,840 @@
+--------------------------------------------------------------------------Binary_search----------------------------------------------------------------------------
+
+
+
+1) Matrix Median	(one of the best question,concept:binary search on answer)
+
+/*Given a matrix of integers A of size N x M in which each row is sorted.
+Find and return the overall median of the matrix A.
+Note: No extra memory is allowed.
+Note: Rows are numbered from top to bottom and columns are numbered from left to right*/
+
+Input 1:
+    A = [   [1, 3, 5],
+            [2, 6, 9],
+            [3, 6, 9]   ]
+Output 1:
+    5
+Explanation 1:
+    A = [1, 2, 3, 3, 5, 6, 6, 9, 9]
+    Median is 5. So, we return 5.
+
+Input 2:
+    A = [   [5, 17, 100]    ]
+Output 2:
+    17 
+
+int Solution::findMedian(vector<vector<int> > &A) {
+    int n=A.size();
+    int m=A[0].size();
+    int lo=INT_MAX,hi=INT_MIN;
+    // lo stores minimum element and hi stores maximum element of the array
+    for(int i=0;i<n;i++){
+       lo = min(lo,A[i][0]);
+       hi = max(hi,A[i][m-1]);
+    }
+    int req = (m*n+1)/2;
+    while(lo <= hi){
+        int mid = (lo + (hi - lo)/2 );
+        int curr_place = 0 ;
+        for(int i=0;i<n;i++)
+        curr_place += upper_bound(A[i].begin(),A[i].end(),mid) - A[i].begin();
+        if(curr_place < req)
+        lo = mid + 1;
+        else
+        hi = mid - 1;
+    }
+    return lo;
+}
+
+
+
+
+
+2) Square root of an integer
+
+/*Given an integar A.
+Compute and return the square root of A.
+If A is not a perfect square, return floor(sqrt(A)).
+DO NOT USE SQRT FUNCTION FROM STANDARD LIBRARY*/
+
+int Solution::sqrt(int A) {
+    if(A == 1 || A == 0) return A;
+    int high=A/2;
+    int low=1;
+    int ans;
+    while(low <= high){
+        int mid=low+(high-low)/2;
+        if( mid  == A/mid)
+            return mid;
+        if(mid < A/mid){
+            ans = mid;
+            low = mid+1;
+        }
+        else
+        high = mid-1;
+    }
+    return ans;
+}
+
+
+
+
+3) Painter's partition problem (concept : Binary search on answer) -------------------------> most important
+
+Given 2 integers A and B and an array of integars C of size N.
+
+Element C[i] represents length of ith board.
+
+You have to paint all N boards [C0, C1, C2, C3 … CN-1]. There are A painters available and each of them takes B units of time to paint 1 unit of board.
+
+Calculate and return minimum time required to paint all boards under the constraints that any painter will only paint contiguous sections of board.
+
+2 painters cannot share a board to paint. That is to say, a board
+cannot be painted partially by one painter, and partially by another.
+A painter will only paint contiguous boards. Which means a
+configuration where painter 1 paints board 1 and 3 but not 2 is
+invalid.
+Return the ans % 10000003
+
+Input 1:
+    A = 2
+    B = 5
+    C = [1, 10]
+Output 1:
+    50
+Explanation 1:
+    Possibility 1:- same painter paints both blocks, time taken = 55units
+    Possibility 2:- Painter 1 paints block 1, painter 2 paints block 2, time take = max(5, 50) = 50
+    There are no other distinct ways to paint boards.
+    ans = 50%10000003
+
+Input 2:
+    A = 10
+    B = 1
+    C = [1, 8, 11, 3]
+Output 2:
+    11
+
+
+#define ll long long
+ll no_of_painter(vector<int>C,ll x)
+{
+    ll sum=0,painter=1;
+    for(int i=0;i<C.size();i++){
+        sum+=C[i];
+        if(sum>x){
+            sum=C[i];
+            painter++;		//increment the painter count as the current time required for painting upto ith board is not being covered in x time
+        }
+    }
+    return painter;
+}
+
+int Solution::paint(int A, int B, vector<int> &C) {
+    
+    ll sum=0;
+    for(int i=0;i<C.size();i++) sum+=C[i];	
+    ll lo=*max_element(C.begin(),C.end());	//time taken when each board is painted by a person
+    ll hi=sum;					//time taken when a single person paints all the boards
+    while(lo<=hi){
+        ll mid=(lo+(hi-lo)/2);
+        ll req=no_of_painter(C,mid);		//guess a time
+        if(req<=A){				//check how many painters are required in that time and if it does not exceed the provided no of painters,we are fine
+            hi=mid-1;				//can we minimize the time and still able to paint the blocks
+        }
+        else
+        lo=mid+1;				//since we needed more painters than the thresold,we need to increase time
+    }
+    ll M=10000003;
+    ll ans=(lo%M*B%M)%M;
+    if(ans<0) ans+=M;
+    return ans;
+}
+
+
+
+4) Allocate books (Concept : Binary search on answer)
+
+Given an array of integers A of size N and an integer B.
+
+College library has N bags,the ith book has A[i] number of pages.
+
+You have to allocate books to B number of students so that maximum number of pages alloted to a student is minimum.
+
+A book will be allocated to exactly one student.
+Each student has to be allocated at least one book.
+Allotment should be in contiguous order, for example: A student cannot be allocated book 1 and book 3, skipping book 2.
+Calculate and return that minimum possible number.
+
+NOTE: Return -1 if a valid assignment is not possible.
+
+Input 1:
+    A = [12, 34, 67, 90]
+    B = 2
+Output 1:
+    113
+Explanation 1:
+    There are 2 number of students. Books can be distributed in following fashion : 
+        1) [12] and [34, 67, 90]
+        Max number of pages is allocated to student 2 with 34 + 67 + 90 = 191 pages
+        2) [12, 34] and [67, 90]
+        Max number of pages is allocated to student 2 with 67 + 90 = 157 pages 
+        3) [12, 34, 67] and [90]
+        Max number of pages is allocated to student 1 with 12 + 34 + 67 = 113 pages
+
+        Of the 3 cases, Option 3 has the minimum pages = 113.
+
+Input 2:
+    A = [5, 17, 100, 11]
+    B = 4
+Output 2:
+    100
+
+
+#define ll long long
+
+ll possible(vector<int>&A, int x){
+    ll sum=0,student=1;
+    for(int i=0;i<A.size();i++){
+        sum += A[i];
+        if(sum > x){
+            sum = A[i];
+            student++;
+        }
+    }
+    return student;
+}
+
+int Solution::books(vector<int> &A, int B) {
+    ll lo=INT_MIN,hi=0;
+    ll ans = -1;
+    if(A.size()<B) return -1;
+    for(int i=0;i<A.size();i++){
+        if(lo < A[i]) lo = A[i]; 
+        hi += A[i];
+    }
+     // lo -> it will be set to maximum array value
+     // hi -> it will be the sum of all array value
+    while(lo <= hi){
+        int mid = (lo + (hi-lo)/2);
+        if(possible(A,mid) <= B){
+            ans = mid;
+            hi = mid - 1;
+        }
+        else{
+            lo = mid + 1;
+        }
+    }
+    return ans;
+}
+
+
+
+
+
+5) Matrix search
+
+/*Given a matrix of integers A of size N x M and an integer B.
+Write an efficient algorithm that searches for integar B in matrix A.
+This matrix A has the following properties:
+Integers in each row are sorted from left to right.
+The first integer of each row is greater than or equal to the last integer of the previous row.
+Return 1 if B is present in A, else return 0.
+*/
+
+Input 1:
+    A = 
+    [ [1,   3,  5,  7],
+      [10, 11, 16, 20],
+      [23, 30, 34, 50]  ]
+    B = 3
+Output 1:
+    1
+
+Input 2:
+    A = [   [5, 17, 100, 111]
+            [119, 120,  127,   131]    ]
+    B = 3
+Output 2:
+    0
+
+Approach: first find the row in which the element is present and then apply typical binary search of 1D array in that row
+
+int Solution::searchMatrix(vector<vector<int> > &A, int x) {
+    int n=A.size(),m=A[0].size();
+    int row=-1;
+    for(int i=0;i<n;i++){
+        if(A[i][0] <= x && A[i][m-1] >= x){
+            row=i;
+            break;
+        }
+    }
+    if(row == -1) return 0;
+    int lo=0,hi=m-1;
+    while(lo <= hi){
+        int mid = (lo + (hi - lo)/2);
+        if(A[row][mid] == x) return 1;
+        else if(A[row][mid] > x) hi=mid-1;
+        else
+        lo = mid+1;
+    }
+    return 0;
+}
+
+
+
+
+6) Search for a range (first and last occurence of an element)
+
+/*Given a sorted array of integers A(0 based index) of size N, find the starting and ending position of a given integar B in array A.
+Your algorithm’s runtime complexity must be in the order of O(log n).
+Return an array of size 2, such that first element = starting position of B in A and second element = ending position of B in A, 
+if B is not found in A return [-1, -1]*/
+
+
+//stl implementation
+vector<int> Solution::searchRange(const vector<int> &A, int B) {
+    vector<int>ans;
+    if(binary_search(A.begin(),A.end(),B) == false){
+        ans.push_back(-1);
+        ans.push_back(-1);
+        return ans;
+    }
+    int first=lower_bound(A.begin(),A.end(),B)-A.begin();
+    int second=upper_bound(A.begin(),A.end(),B)-A.begin()-1;
+    ans.push_back(first);
+    ans.push_back(second);
+    return ans;
+}
+
+
+//best implementation
+vector<int> Solution::searchRange(const vector<int> &A, int x) {
+    vector<int>ans;
+    int lo=0,hi=A.size()-1,first=-1,second=-1;
+    while(lo <= hi){
+        int mid = (lo + (hi - lo)/2);
+        if(A[mid] == x){
+            first = mid;
+            hi = mid - 1;
+        }
+        else if(A[mid] > x){
+            hi = mid - 1;
+        }
+        else{
+            lo = mid + 1;
+        }
+    }
+    lo=0,hi=A.size()-1;
+    while(lo <= hi){
+        int mid = (lo + (hi - lo)/2);
+        if(A[mid] == x){
+            second = mid;
+            lo = mid + 1;
+        }
+        else if(A[mid] > x){
+            hi = mid - 1;
+        }
+        else{
+            lo = mid + 1;
+        }
+    }
+    ans.push_back(first);
+    ans.push_back(second);
+    return ans;
+}
+
+
+
+7) Sorted insert position
+/*Given a sorted array A and a target value B, return the index if the target is found. If not, return the index where it would be if it were inserted in order.
+You may assume no duplicates in the array*/
+
+//stl implementation
+int Solution::searchInsert(vector<int> &A, int B) {
+  int ans = lower_bound(A.begin(),A.end(),B) - A.begin();
+  return ans;
+}
+
+//best implementation
+int Solution::searchInsert(vector<int> &A, int B) {
+    int lo = 0;
+    int hi = A.size()-1;
+    while(lo <= hi){
+        int mid = (lo + (hi - lo)/2);
+        if(A[mid] == B){
+            return mid;
+        }
+        else if(A[mid] > B){
+            hi = mid - 1;
+        }
+        else
+        lo = mid + 1;
+    }
+    return lo;
+}
+
+
+8) Implement power function
+
+/*Implement pow(x, n) % d.
+In other words, given x, n and d,
+find (x^n % d)
+Note that remainders on division cannot be negative.
+In other words, make sure the answer you return is non negative.*/
+
+int Solution::pow(int x, int n, int p) {
+   if(n == 0) return 1%p;
+   long long res=1;
+   long long base=x;
+   while(n > 0){
+       if(n%2 ==0 ){
+       base = (base * base) % p;
+       n/=2;
+       }
+       else{
+       res = (res * base ) % p;
+       n--;
+       }
+   }
+   if(res < 0) res+=p;
+   return res;
+}
+
+
+9) Simple queries (Its a tricky one) ----------------------> to do again 
+
+//problem description
+You are given an array A having N integers.
+
+You have to perform the following steps in a given order.
+
+1) generate all subarrays of A.
+
+2) take the maximum element from each subarray of A and insert it into a new array G.
+
+3) replace every element of G with the product of their divisors mod 1e9 + 7.
+
+4) sort G in descending order
+
+You now need to perform Q queries
+
+In each query, you are given an integer K, where you have to find the Kth element in G.
+
+solution approach:
+/*We can solve this problem by doing the binary search for each query.
+How?
+First, you need to find that how many times an element will appear in array G. i.e in how many subarrays an element is the 
+greatest one.
+You can find that by finding the next greater element for the current element in both sides and then by multiplying them.
+Once you found the frequency of each element in an array G, you can sort the pairs(product_of_divisors_of_element, frequency) 
+according to there value in descending order followed by taking the prefix sum 
+of there frequencies you can do the binary search for each query.*/
+
+
+#include<bits/stdc++.h>
+using namespace std;
+
+#define pii pair<int,long long>
+#define ff first
+#define ss second
+
+const int mod = 1e9+7;
+const int nax = 1e5+1;
+vector<int> Solution::solve(vector<int> &A, vector<int> &B) 
+{
+    vector<int> res;
+    vector<long long> val(nax,1); //val[i] will store the product of divisors of i
+    
+    for(int i=2 ; i<nax ; i++ )
+    {
+        for(int j=i ; j<nax ; j+= i)
+        {
+            val[j] *= i;
+            val[j] %= mod;
+        }
+    }
+    
+    stack<int> fw,bw;
+    int n = (int)(A.size());
+    vector<int> a(n),b(n);
+    for(int i=0 ; i<n ; i++ )		//next greater element left(indexes)
+    {
+        a[i] = 0;
+        while(!fw.empty() && A[fw.top()] <= A[i])
+            fw.pop();
+        if(!fw.empty()) a[i] = fw.top()+1;
+        fw.push(i);
+        //cout << a[i] << " " ;
+    }
+    //cout << "\n";
+    for(int i=n-1 ; i>=0 ; i-- )	//next greater element right(indexes)
+    {
+        b[i] = n-1;
+        while(!bw.empty() && A[bw.top()] < A[i])
+            bw.pop();
+        if(!bw.empty()) b[i] = bw.top()-1;
+        bw.push(i);
+        //cout << b[i] << " " ;
+    }
+    //cout << "\n";
+    vector<pii> has;
+    
+    for(int i=0 ; i<n ; i++ ) has.push_back({val[A[i]] , (long long)((b[i]-i+1)*(i-a[i]+1))});
+    sort(has.begin() , has.end() , greater<pii>() );
+    
+    for(int i=1 ; i<n ; i++ ) has[i].ss += has[i-1].ss;
+    //cout << has[n-1].ss << "\n";
+    for(auto i: B)
+    {
+        int l=0;
+        int h=n-1;
+        int cur=-1;
+        while(l<=h)
+        {
+            int m = (l+h)>>1;
+            if(i-1 >= has[m].ss)
+            {
+                cur = m;
+                l = m+1;
+            }
+            else
+                h = m-1;
+        }
+        res.push_back(has[cur+1].ff);
+    }
+    
+    return res;
+    
+} 
+
+10) Rotated sorted search array	(one of the most frequently asked interview question)
+
+/*Given an array of integers A of size N and an integer B.
+array A is rotated at some pivot unknown to you beforehand.
+(i.e., 0 1 2 4 5 6 7 might become 4 5 6 7 0 1 2 ).
+You are given a target value B to search. If found in the array, return its index, otherwise return -1.
+You may assume no duplicate exists in the array.*/
+
+int search(vector<int>& nums, int target) {
+        int l = 0, r = nums.size()-1;
+        while (l <= r) {
+            int mid = (l+r) / 2;
+            if (target == nums[mid])
+                return mid;
+            // there exists rotation; the middle element is in the left part of the array
+            if (nums[mid] > nums[r]) {
+                if (target >= nums[l] && target < nums[mid] )
+                    r = mid - 1;
+                else
+                    l = mid + 1;
+            }
+            // there exists rotation; the middle element is in the right part of the array
+            else if (nums[mid] < nums[l]) {
+                if (target > nums[mid] && target <= nums[r])
+                    l = mid + 1;
+                else
+                    r = mid - 1;
+            }
+            // there is no rotation; just like normal binary search
+            else {
+                if (target < nums[mid])
+                    r = mid - 1;
+                else
+                    l = mid + 1;
+            }
+        }
+        return -1;
+   }
+
+11) Median of two sorted arrays (great logic)	----------------> watch tushar roy's video if didn't understood the solution
+
+/*There are two sorted arrays A and B of size m and n respectively.
+Find the median of the two sorted arrays ( The median of the array formed by merging both the arrays ).
+The overall run time complexity should be O(log (m+n)).*/ 
+
+double Solution::findMedianSortedArrays(const vector<int> &A, const vector<int> &B) {
+     int x=A.size(), y=B.size();
+    //if A length is greater then switch them so that A is smaller than B
+    if(x>y) return findMedianSortedArrays(B,A);
+    int start=0,end=x;  //two array hence don't use end=x-1 as smaller array may be empty 
+    while(start<=end){
+        int partitionX = start + (end-start)/2;
+        int partitionY =(x+y+1)/2 - partitionX;
+        
+        //if partitionX is 0 it means nothing is there on left side. Use -INF for minX
+        //if partitionX is length of input then there is nothing on right side. Use +INF for maxX
+        //update min and max which are left/right neighbouring values around partition
+        int minX = (partitionX==0)? INT_MIN:A[partitionX-1];
+        int maxX = (partitionX==x)? INT_MAX:A[partitionX];
+        
+        int minY = (partitionY==0)? INT_MIN:B[partitionY-1];
+        int maxY = (partitionY==y)? INT_MAX:B[partitionY];
+        
+        if(minX<=maxY && minY<=maxX){
+            //We have partitioned array at correct place
+            if((x+y)%2 == 0) 
+                return ((double)(max(minX,minY)+min(maxX,maxY)))/2;
+            else
+                return (double)max(minX,minY);
+        }
+        else if(minX>maxY)
+            //we are too far on right side for partitionX. Go on left side.
+            end = partitionX-1;
+        else 
+            //we are too far on left side for partitionX. Go on right side.
+            start = partitionX+1;
+    }
+    return -1;
+}
+
+----------------------------------------------------------------checkpoint questions---------------------------------------------------------------------------------
+
+1) Kth smallest in an unsorted array 	(loved this one , concept:binary search on answer)
+/*You are not allowed to modify the array ( The array is read only ).
+Try to do it using constant extra space*/
+
+int position(vector<int>A,int mid){
+    int less=0;
+    for(int i=0;i<A.size();i++){
+        if(A[i] <= mid )
+        less++;
+    }
+    return less;
+}
+
+int Solution::kthsmallest(const vector<int> &A, int k) {
+    int lo = *min_element(A.begin(),A.end());
+    int hi = *max_element(A.begin(),A.end());
+    int ans = -1;
+    while(lo <= hi){
+        int mid = (lo + (hi - lo)/2);
+        int req = position(A,mid);
+        if(req >= k){
+            ans = mid;
+            hi = mid-1;
+        }
+        else if(req < k)
+        lo = mid+1;
+    }
+    return ans;
+}
+
+
+2)Woodcutting made easy		(Again binary search on answer)
+
+
+#define ll long long
+ll ispossible(ll x,vector<int>&A){
+    ll res=0;
+    for(int i=0;i<A.size();i++){
+        if(A[i] > x)
+        res+=A[i]-x;
+    }
+    return res;
+}
+
+int Solution::solve(vector<int> &A, int B) {
+    ll lo = 0;
+    ll hi = *max_element(A.begin(),A.end());
+    ll ans=0;
+    while(lo <= hi){
+        ll mid = (lo + (hi - lo)/2);
+        if(ispossible(mid,A) >= B){
+            ans = mid;
+            lo = mid+1;
+        }
+        else
+        hi = mid - 1;
+    }
+    return ans;
+}
+
+
+2) Search in bitonic array
+
+ A = [3, 9, 10, 20, 17, 5, 1]
+ B = 20
+
+Ans:3
+
+int Solution::solve(vector<int> &a, int target) {
+    int lo=0;
+    int hi=a.size()-1;
+    while(lo <= hi){
+        int mid = (lo + (hi - lo)/2);
+        if(a[mid] == target) return mid;
+        if(a[mid-1] < a[mid] && a[mid] < a[mid+1]){
+            if(target > a[mid])
+                lo = mid+1;
+            else
+                hi = mid-1;
+        }
+        if(a[mid-1] > a[mid] && a[mid] > a[mid+1]){
+            if(target > a[mid])
+                hi = mid-1;
+            else
+                lo = mid+1;
+        }
+        else{
+            if(target < a[mid])
+                hi = mid-1;
+        }
+    }
+    return -1;
+}
+
+ 
+
+--------------------------------------------------------------------end of interviewbit ----------------------------------------------------------------------------
+
+
+							       Binary search (Geeks for geeks)
+
+
+1)Peak element
+
+
+
+int peakElement(int arr[], int n)
+{
+   // Your code here
+   int lo=0,hi=n-1;
+   while(lo <= hi){
+        int mid = (lo + (hi-lo)/2);
+        if((mid==0 || arr[mid-1]<=arr[mid]) && (mid==n-1 || arr[mid+1]<=arr[mid] ))		//look at this if condition it is very useful
+            return mid;
+        else if(mid>=1 && arr[mid-1]>arr[mid]) hi=mid-1;
+        else
+        lo=mid+1;
+   }
+   
+}
+
+2) Floor in a sorted array
+
+Input:
+3
+7 0
+1 2 8 10 11 12 19
+7 5
+1 2 8 10 11 12 19
+7 10
+1 2 8 10 11 12 19
+
+Output:
+-1
+1
+3
+
+#include<bits/stdc++.h>
+#define ll long long
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--){
+	    ll n,x;
+	    cin>>n>>x;
+	    vector<ll>a(n);
+	    for(int i=0;i<n;i++) cin>>a[i];
+	    ll lo=0,hi=n-1,res=-1;
+	    while(lo<=hi){
+	        ll mid = (lo + (hi-lo)/2);
+	        if(a[mid] == x){
+	            res = mid;
+	            break;
+	        }
+	        if(a[mid] < x){
+	            res = mid;
+	            lo = mid+1;
+	        }
+	        else if(a[mid] > x)
+	            hi=mid-1;
+	    }
+	    cout<<res<<endl;
+	}
+	return 0;
+} 
+
+
+3) First and last occurence of an element
+
+#include<bits/stdc++.h>
+using namespace std;
+
+int first(vector<int>&a,int x){
+    int lo=0,hi=a.size()-1,res=-1;
+    while(lo <= hi){
+        int mid=(lo + (hi-lo)/2);
+        if(a[mid] == x){
+            res = mid;
+            hi=mid-1;
+        }
+        else if(a[mid] > x) hi=mid-1;
+        else
+        lo=mid+1;
+    }
+    //cout<<res<<" ";
+    return res;
+}
+
+
+int second(vector<int>&a,int x){
+    int lo=0,hi=a.size()-1,res=-1;
+    while(lo <= hi){
+        int mid=(lo + (hi-lo)/2);
+        if(a[mid] == x){
+            res = mid;
+            lo = mid+1;
+        }
+        else if(a[mid] > x) hi=mid-1;
+        else
+        lo=mid+1;
+    }
+    //cout<<res<<" ";
+    return res;
+}
+
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--){
+	   int n,x;
+	   cin>>n>>x;
+	   vector<int>a(n);
+	   for(int i=0;i<n;i++) cin>>a[i];
+	   int f=first(a,x);
+	   int s=second(a,x);
+	   if(f==-1) cout<<"-1"<<endl;
+	   else
+	   cout<<f<<" "<<s<<endl;
+	}
+	return 0;
+}
+
+
+4)Find minimum element in a rotated sorted array --------------->(very important)
+
+
+int minimum(vector<int>&a,int n){
+    if(a[0]<a[n-1]) return a[0];
+    int lo=0,hi=n-1;
+    while(lo <= hi){
+        int mid=(lo+(hi-lo)/2);
+        int next = (mid+1)%n;
+        int prev = (mid-1+n)%n;
+        if((a[prev] >= a[mid] && a[next] >= a[mid]))
+        return a[mid];
+        else if(a[0] <= a[mid]){
+            lo = mid+1;
+        }
+        else if(a[n-1] >= a[mid]){
+            hi = mid-1;
+        }
+    }
+    return -1;
+}

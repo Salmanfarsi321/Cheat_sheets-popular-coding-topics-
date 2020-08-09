@@ -1,0 +1,464 @@
+
+------------------------------------------------------------------------Linked List---------------------------------------------------------------------------------
+
+1)Palindrome list (O(n) time and O(1) space)
+
+I/p:1->2->3->4->3->2->1
+O/p:1
+
+Approach:Reverse the second half of the linked list and comapre first node with mid+1,second with mid+2 and so on...
+
+1->2->3->4->1->2->3
+
+
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+int Solution::lPalin(ListNode* A) {
+    if(A==NULL || A->next==NULL) return 1;  // returning true if num of nodes are 0 or 1
+    if(A->next->next==NULL)
+    {
+        if(A->val == A->next->val) return 1;  //if num of nodes are 2 checking palindrom or not
+        else return 0;
+    }
+    ListNode* slow = A;
+    ListNode* fast = A->next;
+    int cnt=0;
+    while(fast!=NULL && fast->next!=NULL){
+        slow = slow->next;
+        fast = fast->next->next;
+        cnt++;
+    }
+
+    ListNode* mid = slow;
+    ListNode* curr = slow->next;
+    ListNode* prev = NULL;
+    ListNode* next = NULL;
+    while(curr != NULL){
+        next = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = next;
+        cnt++;
+    }
+    mid->next = prev;
+
+    //start cpomparison
+    slow = A;
+    mid = prev;
+    while(mid!=NULL){
+        if(slow->val != mid->val) return 0;
+        slow = slow->next;
+        mid = mid->next;
+    }
+    return 1;
+}
+
+
+2) Remove duplicates from sorted list
+
+I/p: 1->1->1->2->2->3->3->3->N
+O/p: 1->2->3->N
+
+
+ListNode* Solution::deleteDuplicates(ListNode* A) {
+    ListNode* curr = A;
+    while(curr!=NULL){
+        ListNode* temp = curr;
+        while(curr!=NULL && curr->next!=NULL && curr->val == curr->next->val){
+            curr = curr->next;
+        }
+        temp->next = curr->next;
+        if(curr)
+        curr = curr->next;
+    }
+    return A;
+}
+
+3) Remove duplicates from sorted list 2
+
+ListNode* Solution::deleteDuplicates(ListNode* A) {
+    if(A == NULL) return NULL;
+    ListNode* curr = A;
+    ListNode* fakehead = new ListNode(0);
+    fakehead->next = A;
+    ListNode* prev = fakehead;
+    while(curr!=NULL){
+        while(curr!=NULL && curr->next!=NULL && curr->val == curr->next->val){
+            curr = curr->next;
+        }
+        if(prev->next == curr)
+        prev = prev->next;
+        else
+        prev->next = curr->next;
+        curr = curr->next;
+    }
+    return fakehead->next;
+}
+
+4)Merge two sorted lists
+
+//time->O(n+m),space->O(1)
+
+ListNode* Solution::mergeTwoLists(ListNode* A, ListNode* B) {
+    ListNode* curr1 = A;
+    ListNode* curr2 = B;
+    if(A == NULL) return B;
+    if(B == NULL) return A;
+    ListNode* head = NULL,*prev = NULL;
+    while(curr1 && curr2){
+        ListNode* newnode;
+        if(curr1->val < curr2->val){
+            newnode = curr1;
+            curr1=curr1->next;
+        }
+        else{
+            newnode = curr2;
+            curr2=curr2->next;
+        }
+        
+        if(prev)
+        prev->next=newnode;
+        else{
+            head = newnode;
+        }
+        prev = newnode;
+    }
+    if(curr1){
+        prev->next = curr1;;
+    }
+    if(curr2){
+        prev->next = curr2;
+    }
+    return head;
+}
+
+5) Remove Nth node from the end of the linked list
+
+//Approach1-> Two traversals
+
+ListNode* Solution::removeNthFromEnd(ListNode* A, int B) {
+    if(A == NULL) return A;
+    if(A->next == NULL){
+        if(B>=1) return NULL;
+        return A;
+    }
+    int size=0;
+    ListNode* curr = A;
+    while(curr){
+        size++;
+        curr = curr->next;
+    }
+    int len = size-B-1;
+    if(len<0) return A->next;
+    curr = A;
+    while(len--){
+        curr = curr->next;
+    }
+    curr->next = curr->next->next;
+    return A;
+}
+
+Approach2->single traversal  (love this one)
+
+ListNode* Solution::removeNthFromEnd(ListNode* A, int B) {
+    if(A == NULL) return A;
+    if(A->next == NULL){
+        if(B>=1) return NULL;
+        return A;
+    }
+    ListNode* first = A,*second = A;
+    while(B--) {
+        first=first->next;
+        if(first == NULL)
+        return A->next;
+    }
+    while(first->next){
+        second = second->next;
+        first = first->next;
+    }
+    second->next = second->next->next;
+    return A;
+}
+
+6) K reverse linked list  -------> very very importnat
+
+ListNode* Solution::reverseList(ListNode* A, int B) {
+    ListNode *curr = A, *prev = NULL, *next = NULL;
+    int cnt =0;
+     while(cnt<B && curr) {
+         next = curr->next;
+         curr->next = prev;
+         prev = curr;
+         curr = next;
+         cnt++;
+     }
+     if(next) {
+         A->next = reverseList(next, B);
+     }
+     return prev;
+}
+
+7)Swap list nodes in pairs   (same as above with k=2)
+
+i/p: 1->2->3->4->5->6
+o/p: 2->1->4->3->6->5
+
+ListNode* Solution::swapPairs(ListNode* A) {
+    ListNode* curr = A,*prev = NULL,*n = NULL;
+    int len=0;
+    while(curr && len<2){
+        n = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = n;
+        len++;
+    }
+    if(n){
+        A->next = swapPairs(n);
+    }
+    return prev;
+}
+
+
+8) Rotate list
+
+Given a list, rotate the list to the right by k places, where k is non-negative.
+
+For example:
+
+Given 1->2->3->4->5->NULL and k = 2,
+return 4->5->1->2->3->NULL.
+
+
+ListNode* Solution::rotateRight(ListNode* A, int k){
+     int len=0;
+    if(A==NULL || A->next==NULL) return A;
+    ListNode* temp=A,*head,*last;
+    while(temp!=NULL){
+       last=temp;
+       temp=temp->next;
+       len++;
+    }
+    if(k%len==0) return A;
+    int steps=len-k%len;
+    ListNode* first=A,*prev=NULL;
+    temp=A;
+    steps--;
+    while(steps--){
+        temp=temp->next;
+    }
+    head=temp->next;
+    last->next=first;
+    temp->next=NULL;
+    return head;
+}
+
+
+9) List cycle -----------> The most famous linked list problem <^^>
+
+Given a linked list, return the node where the cycle begins. If there is no cycle, return null.
+
+Try solving it using constant additional space.
+
+Example :
+
+Input : 
+
+                  ______
+                 |     |
+                 \/    |
+        1 -> 2 -> 3 -> 4
+
+Return the node corresponding to node 3. 
+
+ListNode* Solution::detectCycle(ListNode* A) {
+    if(A == NULL || A->next == NULL) return NULL;
+    ListNode* slow = A;
+    ListNode* fast = A;
+    bool iscycle =false;
+    while(fast){
+       slow = slow->next;
+       if(fast->next == NULL) return NULL;
+       fast = fast->next->next;
+       if(slow == fast) {
+           iscycle = true;
+           break;
+       }
+    }
+    if(!iscycle) return NULL;
+    slow = A;
+    while(slow!=fast){
+       slow = slow->next;
+       fast = fast->next;
+    }
+    return slow;
+}
+
+10) Add two numbers as list
+
+ListNode* Solution::addTwoNumbers(ListNode* A, ListNode* B) {
+    int rem = 0;
+    ListNode* head = NULL,*prev = NULL;
+    while(A && B){
+        int val =(A->val + B->val + rem)%10;
+        ListNode *temp = new ListNode(val);
+        if(head == NULL) head = temp;
+        if(prev) prev->next = temp;
+        rem =(A->val + B->val + rem)/10;
+        A = A->next;
+        B = B->next;
+        prev = temp;
+    }
+    while(A){
+        int val =(A->val + rem)%10;
+        ListNode *temp = new ListNode(val);
+        prev -> next = temp;
+        rem =(A->val + rem)/10;
+        A = A->next;
+        prev = temp;
+    }
+    while(B){
+        int val =(B->val + rem)%10;
+        ListNode *temp = new ListNode(val);
+        prev -> next = temp;
+        rem =(B->val + rem)/10;
+        B = B->next;
+        prev = temp;
+    }
+    if(rem){
+        ListNode *temp = new ListNode(rem);
+        prev->next = temp;
+    }
+    return head;
+}
+
+
+11) Insertion sort list
+
+ListNode* Solution::insertionSortList(ListNode* head) {
+   		if( head == NULL ){
+			return head;
+		}
+		
+		ListNode* helper = new ListNode(0); //new starter of the sorted list
+		ListNode* cur = head; //the node will be inserted
+		ListNode* pre = helper; //insert node between pre and pre.next
+		ListNode* next = NULL; //the next node will be inserted
+		//not the end of input list
+		while( cur != NULL ){
+			next = cur->next;
+			//find the right place to insert
+			while( pre->next != NULL && pre->next->val < cur->val ){
+				pre = pre->next;
+			}
+			//insert between pre and pre.next
+			cur->next = pre->next;
+			pre->next = cur;
+			pre = helper;
+			cur = next;
+		}
+		return helper->next;
+}
+
+
+12) Reorder List	----> love this one (uses same reversal of the half part as done in palindrome question)
+
+Given a singly linked list
+
+    L: L0 → L1 → … → Ln-1 → Ln,
+reorder it to:
+
+    L0 → Ln → L1 → Ln-1 → L2 → Ln-2 → …
+You must do this in-place without altering the nodes’ values
+
+ListNode* Solution::reorderList(ListNode* head) {
+    if(head == NULL || head->next == NULL || head->next->next == NULL)
+    return head;
+    ListNode* slow = head;
+    ListNode* fast = head->next;
+    while(fast && fast->next){
+        fast = fast->next->next;
+        slow = slow->next;
+    }
+    ListNode* curr = slow->next;
+    ListNode* prev = NULL,*n = NULL;
+    while(curr){
+        n = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = n;
+    }
+    slow->next = NULL;
+    //prev is the first node of reverse part
+    //cout<<prev->data<<" ";
+    slow = head; // slow is the first node of first part
+    //cout<<slow->data<<endl;;
+    bool flag = true;
+    while(slow!=NULL){
+        ListNode* temp;
+        if(flag){
+        temp = slow->next;
+        slow->next = prev;
+        slow = temp;
+        }
+        else{
+        temp = prev->next;
+        prev->next = slow;
+        prev = temp;
+        }
+        if(flag == true) flag = false;
+        else
+        flag = true;
+    }
+    return head;
+}
+
+
+13) Sort List  (Using Merge Sort)
+
+ListNode* merge(ListNode* p1,ListNode* p2){
+    if(p1 == NULL) return p2;
+    if(p2 == NULL) return p1;
+    ListNode* head = NULL,*prev = NULL;
+    while(p1 && p2){
+        ListNode* newnode;
+        if(p1->val < p2->val){
+            newnode = p1;
+            p1 = p1->next;
+        }
+        else{
+            newnode = p2;
+            p2 = p2->next;
+        }
+        if(head == NULL) head = newnode;
+        if(prev) prev->next = newnode;
+        prev = newnode;
+    }
+    if(p1) prev->next = p1;
+    if(p2) prev->next = p2;
+    return head;
+}
+
+
+
+ListNode* Solution::sortList(ListNode* A) {
+    if(A == NULL || A->next == NULL) return A;
+    ListNode* slow = A;
+    ListNode* fast = A->next;
+    while(fast && fast->next){
+       slow = slow->next;
+       fast = fast->next->next;
+    }
+    fast = slow->next;
+    slow->next = NULL;
+    //Now we have two linked list [head,slow] and [fast,lastnode]
+    return merge(sortList(A),sortList(fast));
+}
+
+

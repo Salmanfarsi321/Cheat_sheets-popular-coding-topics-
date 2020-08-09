@@ -1,0 +1,236 @@
+
+--------------------------------------------------------------------------Bit_manipulation-------------------------------------------------------------------------
+
+1) Number of set bits
+
+int Solution::numSetBits(unsigned int A) {
+   int cnt = 0;
+   while(A!=0){
+       A = A & (A-1);		//this line is also used for checking whether number is power of two (it returns 0 in that case)
+       cnt++;
+   }
+   return cnt;
+}
+
+2) Reverse bits
+
+unsigned int Solution::reverse(unsigned int A) {
+    unsigned int B = 0; //B will hold the reversed number
+    for(int i=0;i<32;i++){  //Iterating on all bit positions
+        int k = A & 1;      //Extracting the rightmost bit from A (the ith bit in original number)
+        B <<= 1;            //Shifting B to left (rightmost bit becomes 0)
+        B |= k;             //Adding the extracted bit
+        A >>= 1;            //Now the (i+1)st bit shifts to the rightmost position in A
+    }
+    return B;
+}
+
+
+3) Divide two integer (watch video from Nidesh terapalli)
+
+/*Divide two integers without using multiplication, division and mod operator.
+Return the floor of the result of the division.
+Example:
+
+5 / 2 = 2
+Also, consider if there can be overflow cases. For overflow case, return INT_MAX.
+Note: INT_MAX = 2^31 - 1*/
+
+int Solution::divide(int A, int B) {
+    //A is dividend , B is divisor
+    if(A == INT_MIN && B == -1) return INT_MAX;
+    int a = abs(A);
+    int b = abs(B);
+    int res = 0;
+    while(a-b>=0){
+        int x = 0;
+        while(a - (b<<1<<x)>=0){
+            x++;
+        }
+        res += 1<<x;
+        a -=b<<x;
+    }
+    return (B>=0) == (A>=0) ? res : -res;
+}
+
+
+
+4) Different bits sum pairwise
+
+/*We define f(X, Y) as number of different corresponding bits in binary representation of X and Y. For example, f(2, 7) = 2, 
+since binary representation of 2 and 7 are 010 and 111, respectively. The first and the third bit differ, so f(2, 7) = 2.
+
+You are given an array of N positive integers, A1, A2 ,…, AN. Find sum of f(Ai, Aj) for all pairs (i, j) such that 1 ≤ i, j ≤ N. Return the answer modulo 10^9+7.*/
+
+const int mod = 1e9+7;
+
+int Solution::cntBits(vector<int> &A) {
+    int n = A.size();
+    long long res = 0;
+    for(int i=0;i<31;i++){
+        long long cnt = 0;
+        for(int j=0;j<n;j++){
+            if(A[j] & (1<<i))
+            cnt++;
+        }
+        res += 2*cnt*(n - cnt);
+        res %= mod;
+    }
+    return (int)res;
+}
+
+5) Min XOR value
+
+
+
+6) Count total no of set bits	(it is a little hard) ------> not done 
+
+// Function to return the sum of the count
+// of set bits in the integers from 1 to n
+const int mod=1e9+7;
+int countSetBits(int n)
+{
+
+    // Ignore 0 as all the bits are unset
+    n++;
+
+    // To store the powers of 2
+    int powerOf2 = 2;
+
+    // To store the result, it is initialized
+    // with n/2 because the count of set
+    // least significant bits in the integers
+    // from 1 to n is n/2
+    int cnt = n / 2;
+
+    // Loop for every bit required to represent n
+    while (powerOf2 <= n) {
+
+        // Total count of pairs of 0s and 1s
+        int totalPairs = n / powerOf2;
+
+        // totalPairs/2 gives the complete
+        // count of the pairs of 1s
+        // Multiplying it with the current power
+        // of 2 will give the count of
+        // 1s in the current bit
+        cnt += (totalPairs / 2) * powerOf2;
+        cnt%=mod;
+
+        // If the count of pairs was odd then
+        // add the remaining 1s which could
+        // not be groupped together
+        cnt += (totalPairs & 1) ? (n % powerOf2) : 0;
+        cnt%=mod;
+        // Next power of 2
+        powerOf2 <<= 1;
+    }
+
+    // Return the result
+    return cnt;
+}
+int Solution::solve(int A) {
+    return countSetBits(A);
+}
+
+7) Palindromic Binary representation
+
+
+
+
+8) Single number (every element appears twice in an array)
+
+/*Given an array of integers, every element appears twice except for one. Find that single one.
+Note: Your algorithm should have a linear runtime complexity. Could you implement it without using extra memory?*/
+
+int Solution::singleNumber(const vector<int> &A) {
+    int xo = 0;
+    for(int i=0;i<A.size();i++){
+        xo ^= A[i];
+    }
+    return xo;
+}
+
+9) Single number 2 (every element appears thrice in an array) ----> one of the favorite from this section
+
+Explanation: At any position i we can have either 3*b+1 or 3*b no of bits depending on whether the desired number is having set bit or not at the ith position 
+and the 3*b is coming from the fact that rest of the elements have appeared thrice*/
+ 
+int Solution::singleNumber(const vector<int> &A) {
+   int n=A.size();
+    int res = 0;
+    for(int i=0;i<32;i++){
+        int cnt = 0;
+        for(int j=0;j<n;j++){
+            if(A[j] & (1<<i)){
+                cnt++;
+            }
+        }
+        //cout<<cnt<<" ";
+        if(cnt%3 ==0) cnt = 0;
+        else
+        cnt = 1;
+        res|=(cnt<<i);
+    }
+    return res;
+}
+
+
+10)Min Xor value
+
+Given an integer array A of N integers, find the pair of integers in the array which have minimum XOR value. Report the minimum XOR value.
+
+int Solution::findMinXor(vector<int> &A) {
+    sort(A.begin(),A.end());
+    int res = INT_MAX;
+    for(int i=0;i<A.size()-1;i++){
+        res = min(res,A[i] xor A[i+1]);
+    }
+    return res;
+}
+
+
+-----------------------------------------------------------------------Bit problems (gfg)-----------------------------------------------------------------------------
+
+
+1) Given an array,every number appears twice and two numbers which are distinct appear once.Find the two numbers.
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--){
+	    int n;
+	    cin>>n;
+	    n = 2*n+2;
+	    vector<int>a(n);
+	    int xor_res = 0;
+	    for(int i=0;i<n;i++) {
+	        cin>>a[i];
+	        xor_res = xor_res ^ a[i];
+	    }
+	    //cout<<xor_res<<" ";
+	    int mask = 1;
+	    while((mask & xor_res) == 0){
+	        mask = mask<<1;
+	    }
+	    //cout<<mask<<" ";
+	    int first = 0,second = 0;
+	    for(int i=0;i<n;i++){
+	        if(a[i] & mask)
+	            first ^= a[i];
+	        else
+	            second ^= a[i];
+	    }
+	    if(first<second) cout<<first<<" "<<second<<"\n";
+	    else
+	    cout<<second<<" "<<first<<"\n";
+	}
+	return 0;
+}
+
+
+
+2)

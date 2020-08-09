@@ -1,0 +1,267 @@
+
+----------------------------------------------------------------------Greedy Algorithms (Interviewbit)------------------------------------------------------------------------------
+
+1) Bulbs
+
+N light bulbs are connected by a wire.
+Each bulb has a switch associated with it, however due to faulty wiring, a switch also changes the state of all the bulbs to the right of current bulb.
+Given an initial state of all bulbs, find the minimum number of switches you have to press to turn on all the bulbs.
+You can press the same switch multiple times.
+Note : 0 represents the bulb is off and 1 represents the bulb is on.
+
+code:
+int Solution::bulbs(vector<int> &A) {
+    int flipped=0,cnt=0;
+    for(int i=0;i<A.size();i++){
+        if(A[i]==1){
+            if(flipped==1) cnt++;
+            flipped=0;
+        }
+        else{
+            if(flipped==0) cnt++;
+            flipped=1;
+        }
+    }
+    return cnt;
+}
+
+
+2)Highest product
+
+Given an array A, of N integers A.
+
+Return the highest product possible by multiplying 3 numbers from the array.
+
+NOTE: Solution will fit in a 32-bit signed integer.
+
+Input 1:
+A = [1, 2, 3, 4]
+
+Output 1:
+24
+
+Explanation 1:
+2 * 3 * 4 = 24
+
+Input 2:
+A = [0, -1, 3, 100, 70, 50]
+
+Output 2:
+350000
+
+Explanation 2:
+70 * 50 * 100 = 350000
+
+int Solution::maxp3(vector<int> &A) {
+    sort(A.begin(),A.end());
+    int n=A.size();
+    if(n>=3){
+    int a=A[0]*A[1]*A[n-1];  //Product of the 2 negative elements with max absolute value and maximum positive value.
+    int b=A[n-1]*A[n-2]*A[n-3]; // Product of 3 maximum elements
+    return max(a,b);
+    }
+    else
+    return 0;
+}
+
+
+3) Meeting rooms  (The most asked question in interviews and OA)
+
+Given an 2D integer array A of size N x 2 denoting time intervals of different meetings.
+
+Where:
+
+A[i][0] = start time of the ith meeting.
+A[i][1] = end time of the ith meeting.
+Find the minimum number of conference rooms required so that all meetings can be done.
+
+
+
+int Solution::solve(vector<vector<int> > &A) {
+    int n=A.size();
+    vector<int>start(n);
+    vector<int>finish(n);
+    for(int i=0;i<n;i++){
+        start[i] = A[i][0];
+        finish[i] = A[i][1];
+    }
+    sort(start.begin(),start.end());
+    sort(finish.begin(),finish.end());
+    int i=1,j=0,plat=1,res=1;
+    while(i<n && j<n){
+        if(start[i] < finish[j]){
+            plat++;
+            i++;
+        }
+        else{
+            plat--;
+            j++;
+        }
+        res=max(res,plat);
+    }
+    return res;
+}
+
+4) Distribute candy
+
+There are N children standing in a line. Each child is assigned a rating value.
+
+You are giving candies to these children subjected to the following requirements:
+
+1. Each child must have at least one candy.
+2. Children with a higher rating get more candies than their neighbors.
+What is the minimum candies you must give?
+
+
+int Solution::candy(vector<int> &A) {
+    int n=A.size();
+    int left[n],right[n];
+    left[0]=1;
+    for(int i=1;i<n;i++){
+        if(A[i-1]<A[i]) left[i]=left[i-1]+1;
+        else
+        left[i]=1;
+    }
+    right[n-1]=1;
+    for(int i=n-2;i>=0;i--){
+        if(A[i+1]<A[i]) right[i]=right[i-1]+1;
+        else
+        right[i]=1;
+    }
+    int ans=0;
+    for(int i=0;i<n;i++){
+        ans+=max(left[i],right[i]);
+    }
+    return ans;
+}
+
+
+5) Seats		(Using Mean is wrong ,use median) 
+
+There is a row of seats. Assume that it contains N seats adjacent to each other. There is a group of people who are already seated in that row randomly. i.e. some are sitting together & some are scattered.
+
+An occupied seat is marked with a character 'x' and an unoccupied seat is marked with a dot ('.')
+
+Now your target is to make the whole group sit together i.e. next to each other, without having any vacant seat between them in such a way that the total number of hops or jumps to move them should be minimum.
+
+int Solution::seats(string A) {
+    vector<int> pos;
+    int n = A.size(), m = 10000003;
+    for (int i = 0; i < n; ++i) {
+        if (A[i] == 'x')
+            pos.push_back(i);
+    }
+    int ans = 0, pn = pos.size();
+    const int mid = (pn - 1) / 2;
+    if (pn == 0)
+        return ans;
+    int median;
+    
+    if (pos.size() % 2 == 0)
+        median = (pos[mid] + pos[mid + 1]) / 2;
+    else
+        median = pos[mid];
+    
+    int val = median;
+    for(int i = mid; i >= 0; --i) {
+        ans += (val - pos[i]);
+        ans %= m;
+        val--;
+    }
+    val = median + 1;
+    for (int i = mid + 1; i < pn; ++i) {
+        ans += (pos[i] - val);
+        ans %= m;
+        val++;
+    }
+    return ans;
+}
+
+
+6) Assign mice to holes
+
+There are N Mice and N holes are placed in a straight line.
+Each hole can accomodate only 1 mouse.
+A mouse can stay at his position, move one step right from x to x + 1, or move one step left from x to x − 1. Any of these moves consumes 1 minute.
+Assign mice to holes so that the time when the last mouse gets inside a hole is minimized.
+
+positions of mice are:
+4 -4 2
+positions of holes are:
+4 0 5
+
+Assign mouse at position x=4 to hole at position x=4 : Time taken is 0 minutes 
+Assign mouse at position x=-4 to hole at position x=0 : Time taken is 4 minutes 
+Assign mouse at position x=2 to hole at position x=5 : Time taken is 3 minutes 
+After 4 minutes all of the mice are in the holes.
+
+Since, there is no combination possible where the last mouse's time is less than 4, 
+answer = 4.
+
+int Solution::mice(vector<int> &A, vector<int> &B) {
+    int n=A.size();
+    sort(A.begin(),A.end());
+    sort(B.begin(),B.end());
+    int ans=INT_MIN;
+    for(int i=0;i<n;i++){
+        ans=max(ans,abs(B[i]-A[i]));
+    }
+    return ans;
+}
+
+
+
+7) Majority element  
+
+(Moore's voting algo ->If we cancel out each occurrence of an element e with all the 
+other elements that are different from e then e will exist till end if it is a majority element. )
+
+Given an array of size n, find the majority element. The majority element is the element that appears more than floor(n/2) times.
+
+You may assume that the array is non-empty and the majority element always exist in the array.
+
+
+int Solution::majorityElement(const vector<int> &A) {
+    int n=A.size();
+    int maj_idx=0,cnt=1;
+    for(int i=1;i<n;i++){
+        if(A[maj_idx]==A[i]) cnt++;
+        else
+        cnt--;
+        if(cnt==0){
+            maj_idx=i;
+            cnt=1;
+        }
+    }
+    return A[maj_idx];
+}
+
+
+
+8) Gas station (one of the famous question)
+
+int Solution::canCompleteCircuit(const vector<int> &gas, const vector<int> &cost) {
+    int n=gas.size();
+    int rem=0,curr=0;
+    int start=0;
+    int total_gas=0,total_cost=0;
+    for(int i=0;i<n;i++){
+        total_gas+=gas[i];
+        total_cost+=cost[i];
+        curr+=gas[i];
+        if(curr-cost[i]<0){
+            curr=0;
+            start=i+1;
+            continue;
+        }
+        rem=curr-cost[i];
+        curr=rem;
+    }
+    if(total_gas<total_cost) return -1;
+    return start;
+}
+
+
+
+----------------------------------------------------------------------End of interviewbit--------------------------------------------------------------------------
+

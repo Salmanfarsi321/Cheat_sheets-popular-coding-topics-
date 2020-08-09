@@ -1,0 +1,294 @@
+Que1: LCS(Longest common subsequence)
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--)
+	{
+	    int a,b;
+	    cin>>a>>b;
+	    string str1,str2;
+	    cin>>str1;
+	    cin>>str2;
+	    int dp[a+1][b+1];
+	    for(int i=0;i<=a;i++)
+	    {
+	        for(int j=0;j<=b;j++)
+	        {
+	            if(i==0||j==0)
+	            dp[i][j]=0;
+	            else if(str1[i-1]==str2[j-1])
+	            dp[i][j]=dp[i-1][j-1]+1;
+	            else
+	            dp[i][j]=max(dp[i-1][j],dp[i][j-1]);
+	        }
+	    }
+	    cout<<dp[a][b]<<endl;
+	}
+	return 0;
+}
+
+Que2: LIS(Longest Increasing subsequence)
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--)
+	{
+	    int n;
+	    cin>>n;
+	    int a[n];
+	    for(int i=0;i<n;i++)
+	    cin>>a[i];
+	    vector<int>dp(n,1);
+	    for(int i=1;i<n;i++)
+	    {
+	        for(int j=0;j<i;j++)
+	        {
+	            if(a[i]>a[j])
+	            dp[i]=max(dp[i],dp[j]+1);
+	        }
+	    }
+	    cout<<*max_element(dp.begin(),dp.end())<<endl;
+	}
+	return 0;
+}
+
+Que3: Edit distance (insert,remove or delete)
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--)
+	{
+	    int n,m;
+	    cin>>n>>m;
+	    string str1,str2;
+	    cin>>str1>>str2;
+	    int dp[n+1][m+1];
+	    for(int i=0;i<=n;i++)
+	    {
+	        for(int j=0;j<=m;j++)
+	        {
+	            if(i==0) dp[i][j]=j;
+	            else if(j==0) dp[i][j]=i;
+	            else if(str1[i-1]==str2[j-1])
+	            dp[i][j]=dp[i-1][j-1];
+	            else
+	            dp[i][j]=1+min({dp[i-1][j],dp[i][j-1],dp[i-1][j-1]});
+	        }
+	    }
+	    cout<<dp[n][m]<<endl;
+	}
+	return 0;
+}
+
+Edit distance (space optimized)
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--){
+	    int n,m;
+	    cin>>n>>m;
+	    string str1,str2;
+	    cin>>str1>>str2;
+	    int dp[2][n+1];
+	    memset(dp,0,sizeof(dp));
+	    for(int i=0;i<=n;i++)
+	    dp[0][i]=i;
+	    for(int i=1;i<=m;i++){
+	        for(int j=0;j<=n;j++){
+	            if(j==0)
+	            dp[i%2][j]=i;
+	            else if(str1[j-1]==str2[i-1])
+	            dp[i%2][j]=dp[(i-1)%2][j-1];
+	            else{
+	                dp[i%2][j]=1+min({dp[(i-1)%2][j],dp[i%2][j-1],
+	                dp[(i-1)%2][j-1]});
+	            }
+	        }
+	    }
+	    cout<<dp[m%2][n]<<endl;
+	}
+	return 0;
+}
+
+Que4: Minimum sum partition(Partition a set into two subsets such that the difference of subset sums is minimum)
+
+#include<bits/stdc++.h>
+using namespace std;
+
+//s2-s1 is minimum
+//total_sum-2*s1 is minimum
+int main()
+{
+	    int t;
+	    cin>>t;
+	    while(t--){
+	        int n;
+	        cin>>n;
+	        vector<int>a(n);
+	        int total_sum=0;
+	        for(int i=0;i<n;i++) {
+	            cin>>a[i];
+	            total_sum+=a[i];
+	        }
+	        int W=total_sum;
+	        bool dp[n+1][W+1];
+	        for(int i=0;i<=W;i++) dp[0][i]=false;
+	        for(int i=0;i<=n;i++) dp[i][0]=true;
+            for(int i=1;i<=n;i++){
+                for(int j=1;j<=W;j++){
+                if(a[i-1]<=j)
+                dp[i][j]=(dp[i-1][j-a[i-1]]||dp[i-1][j]);
+                else
+                dp[i][j]=dp[i-1][j];
+            }
+            }
+            int mn=INT_MAX;
+            for(int i=1;i<=W/2;i++){
+            if(dp[n][i]==true){
+                int val=total_sum-2*i;
+                mn=min(mn,val);
+            }
+            }
+	        cout<<mn<<endl;
+	}
+	return 0;
+}
+
+Que5: Count number of ways to cover a distance by using 1 , 2 or 3 hops at a time
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--){
+	    int n;
+	    cin>>n;
+	    vector<int>dp(n+1);
+	    dp[0]=1;
+	    dp[1]=dp[0];
+	    dp[2]=dp[0]+dp[1];
+	    for(int i=3;i<=n;i++){
+	        dp[i]=dp[i-1]+dp[i-2]+dp[i-3];
+	    }
+	    cout<<dp[n]<<"\n";
+	}
+	return 0;
+}
+
+Que6: Find the longest path in a matrix (starting from any cell) such that all cells along the path are in increasing order with a difference of 1.
+
+int findLongestFromACell(int i, int j, int mat[n][n], int dp[n][n]) 
+{ 
+    if (i < 0 || i >= n || j < 0 || j >= n) 
+        return 0; 
+  
+    // If this subproblem is already solved 
+    if (dp[i][j] != -1) 
+        return dp[i][j]; 
+  
+    // To store the path lengths in all the four directions 
+    int x = INT_MIN, y = INT_MIN, z = INT_MIN, w = INT_MIN; 
+  
+    // Since all numbers are unique and in range from 1 to n*n, 
+    // there is atmost one possible direction from any cell 
+    if (j < n - 1 && ((mat[i][j] + 1) == mat[i][j + 1])) 
+        x = 1 + findLongestFromACell(i, j + 1, mat, dp); 
+  
+    if (j > 0 && (mat[i][j] + 1 == mat[i][j - 1])) 
+        y = 1 + findLongestFromACell(i, j - 1, mat, dp); 
+  
+    if (i > 0 && (mat[i][j] + 1 == mat[i - 1][j])) 
+        z = 1 + findLongestFromACell(i - 1, j, mat, dp); 
+  
+    if (i < n - 1 && (mat[i][j] + 1 == mat[i + 1][j])) 
+        w = 1 + findLongestFromACell(i + 1, j, mat, dp); 
+  
+    // If none of the adjacent fours is one greater we will take 1 
+    // otherwise we will pick maximum from all the four directions 
+    return dp[i][j] = max(x, max(y, max(z, max(w, 1)))); 
+} 
+  
+// Returns length of the longest path beginning with any cell 
+int finLongestOverAll(int mat[n][n]) 
+{ 
+    int result = 1; // Initialize result 
+  
+    // Create a lookup table and fill all entries in it as -1 
+    int dp[n][n]; 
+    memset(dp, -1, sizeof dp); 
+  
+    // Compute longest path beginning from all cells 
+    for (int i = 0; i < n; i++) { 
+        for (int j = 0; j < n; j++) { 
+            if (dp[i][j] == -1) 
+                findLongestFromACell(i, j, mat, dp); 
+  
+            // Update result if needed 
+            result = max(result, dp[i][j]); 
+        } 
+    } 
+  
+    return result; 
+} 
+
+Que7: Subset sum (Given a set of numbers, check whether it can be partitioned into two subsets such that the sum of elements in both subsets is same or not.)
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--)
+	{
+	    int n;
+	    cin>>n;
+	    vector<int>a(n);
+	    int sum=0;
+	    for(int i=0;i<n;i++) {
+	        cin>>a[i];
+	        sum+=a[i];
+	    }
+	    if(sum%2!=0) cout<<"NO"<<endl;
+	    else{
+	        int W=sum/2;
+	        bool dp[n+1][W+1];
+	        for(int i=0;i<=W;i++) dp[0][i]=false;
+	        for(int i=0;i<=n;i++) dp[i][0]=true;
+	        for(int i=1;i<=n;i++){
+	            for(int j=1;j<=W;j++){
+	                if(a[i-1]<=j)
+	                dp[i][j]=dp[i-1][j-a[i-1]]||dp[i-1][j];
+	                else
+	                dp[i][j]=dp[i-1][j];
+	            }
+	        }
+	        if(dp[n][W]) cout<<"YES"<<endl;
+	        else
+	        cout<<"NO"<<endl;
+	    }
+	}
+	return 0;
+}
+
+Que8:
+
+

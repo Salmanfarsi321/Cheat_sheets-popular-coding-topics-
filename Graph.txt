@@ -1,0 +1,170 @@
+
+-----------------------------------------------------------------------------Graph(geeks for geeks)-----------------------------------------------------------------
+
+(1) Treasure island
+
+#include<bits/stdc++.h>
+using namespace std;
+
+int dx[4] = {1,-1,0,0};
+int dy[4] = {0,0,1,-1};
+
+int bfs(int n,int m,vector<vector<char> >&a,vector<vector<bool> >&vis){
+	queue<pair<int,int> >q;
+	q.push({0,0});
+	int steps = 0;
+	vis[0][0] = true;
+	while(!q.empty()){
+		int sz = q.size();
+		while(sz--){
+		int x_cord = q.front().first;
+		int y_cord = q.front().second;
+		//cout<<x_cord<<" "<<y_cord<<endl;
+		if(a[x_cord][y_cord] == 'X') return steps;
+		q.pop();
+		for(int i=0;i<4;i++){
+			int x = x_cord + dx[i];
+			int y = y_cord + dy[i];
+			if(x>=0 && y>=0 && x<n && y<m && a[x][y] !='D' && !vis[x][y]){
+				q.push({x,y});
+				vis[x][y] = true;
+			}
+		}
+		}
+		steps++;
+	}
+	return steps;
+}
+
+int main(){
+	int n,m;
+	cin>>n>>m;
+	vector<vector<char> >a(n,vector<char>(m));
+	for(int i=0;i<n;i++){
+		for(int j=0;j<m;j++){
+			cin>>a[i][j];
+		}
+	}
+	vector<vector<bool> >vis(n,vector<bool>(m,false));
+	cout<<bfs(n,m,a,vis)<<endl;
+	return 0;
+}
+
+
+(2) Unit area of largest regions of 1's
+
+#include<bits/stdc++.h>
+using namespace std;
+
+int dx[8] = {1,-1,0,0,1,-1,-1,1};
+int dy[8] = {0,0,-1,1,1,-1,1,-1};
+
+int steps;
+
+void dfs(int i,int j,vector<vector<char> >&a,int n,int m){
+    if(i>=0 && j>=0 && i<n && j<m && a[i][j] == '1'){
+        a[i][j] = '0';
+        steps++;
+        for(int k=0;k<8;k++){
+            int x = i+dx[k];
+            int y = j+dy[k];
+            dfs(x,y,a,n,m);
+        }
+    }
+}
+
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--){
+	    int n,m;
+	    cin>>n>>m;
+	    vector<vector<char> >a(n,vector<char>(m));
+	    for(int i=0;i<n;i++){
+	        for(int j=0;j<m;j++)
+	            cin>>a[i][j];
+	    }
+	    int mx=0;
+	    for(int i=0;i<n;i++){
+	        for(int j=0;j<m;j++){
+	            if(a[i][j] == '1'){
+	                steps = 0;
+	                dfs(i,j,a,n,m);
+	                mx = max(mx,steps);
+	            }
+	        }
+	    }
+	    cout<<mx<<endl;
+	}
+	return 0;
+}
+
+(3) Flood fill algorithm
+
+#include<bits/stdc++.h>
+using namespace std;
+
+void dfs(int n,int m,vector<vector<int> >&grid,int i,int j,int k,int orig_color){
+    if(i>=0 && j>=0 && i<n && j<m && grid[i][j] == orig_color){
+        grid[i][j] = k;
+        dfs(n,m,grid,i+1,j,k,orig_color);
+        dfs(n,m,grid,i-1,j,k,orig_color);
+        dfs(n,m,grid,i,j+1,k,orig_color);
+        dfs(n,m,grid,i,j-1,k,orig_color);
+    }
+}
+
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--){
+	    int n,m;
+	    cin>>n>>m;
+	    vector<vector<int> >grid(n,vector<int>(m));
+	    for(int i=0;i<n;i++){
+	        for(int j=0;j<m;j++)
+	            cin>>grid[i][j];
+	    }
+	    int x,y,k;
+	    cin>>x>>y>>k;
+	    int orig_color = grid[x][y];
+	    dfs(n,m,grid,x,y,k,orig_color);
+	    for(int i=0;i<n;i++){
+	        for(int j=0;j<m;j++)
+	            cout<<grid[i][j]<<" ";
+	    }
+	    cout<<endl;
+	}
+	return 0;
+}
+
+(4) Dijkstra using adjacency matrix
+
+
+/*  Function to implement Dijkstra
+*   g: vector of vectors which represents the graph
+*   src: source vertex to start traversing graph with
+*   V: number of vertices
+*/
+vector <int> dijkstra(vector<vector<int>> g, int src, int V)
+{
+    vector<int>d(V,INT_MAX);
+    priority_queue<pair<int,int>,vector<pair<int,int> >,greater<pair<int,int> > >q;
+    q.push({0,src}); // {distance,source}
+    d[src] = 0;
+    while(!q.empty()){
+        int dis = q.top().first;
+        int x = q.top().second;
+        q.pop();
+        if(d[x] < dis) continue;
+        for(int i=0;i<V;i++){
+            if(g[x][i]!=0 && d[x] + g[x][i] < d[i]){
+            d[i]=d[x]+g[x][i];
+            q.push({d[i],i});
+            }
+        }
+    }
+    return d;
+}

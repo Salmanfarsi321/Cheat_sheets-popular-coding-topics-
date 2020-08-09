@@ -1,0 +1,122 @@
+-------------------------------------------------------------------------------Heap-----------------------------------------------------------------------------
+
+Que1:Magician and chocolates
+/*Given N bags, each bag contains Bi chocolates. There is a kid and a magician. In one unit of time, kid chooses a random bag i,
+ eats Bi chocolates, then the magician fills the ith bag with floor(Bi/2) chocolates.*/
+
+Find the maximum number of chocolates that kid can eat in A units of time.
+
+const int mod=1e9+7;
+
+int Solution::nchoc(int A, vector<int> &B) {
+    priority_queue<int>pq;
+    for(int i=0;i<B.size();i++){
+        pq.push(B[i]);
+    }
+    long long ans=0;
+    while(!pq.empty() && A--){
+        long long x=pq.top();
+        pq.pop();
+        ans=(ans+x)%mod;
+        pq.push(x/2);
+    }
+    return (int)ans;
+}
+
+Que2:K largest elements
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--){
+	    int n,k;
+	    cin>>n>>k;
+	    vector<int>a(n);
+	    priority_queue<int,vector<int>,greater<int> >pq;
+	    for(int i=0;i<n;i++){
+	        cin>>a[i];
+	    }
+	    for(int i=0;i<n;i++){
+	        pq.push(a[i]);
+	        if(pq.size()>k)
+	        pq.pop();
+	    }
+	    vector<int>ans;
+	    while(!pq.empty()){
+	        ans.push_back(pq.top());
+	        pq.pop();
+	    }
+	    reverse(ans.begin(),ans.end());
+	    for(int i=0;i<ans.size();i++) cout<<ans[i]<<" ";
+	    cout<<"\n";
+	}
+	return 0;
+}
+
+Que3: Nearly sorted array
+
+#include<bits/stdc++.h>
+using namespace std;
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--){
+	    int n,k;
+	    cin>>n>>k;
+	    vector<int>a(n);
+	    for(int i=0;i<n;i++) cin>>a[i];
+	    priority_queue<int,vector<int>,greater<int> >pq;
+	    for(int i=0;i<n;i++){
+	        pq.push(a[i]);
+	        if(pq.size()>k){
+	            cout<<pq.top()<<" ";
+	            pq.pop();
+	        }
+	    }
+	    while(!pq.empty()){
+	        cout<<pq.top()<<" ";
+	        pq.pop();
+	    }
+	    cout<<"\n";
+	}
+	return 0;
+}
+
+Que4: Minimum cost of ropes
+
+#include<bits/stdc++.h>
+using namespace std;
+#define ll long long
+
+int main()
+{
+	int t;
+	cin>>t;
+	while(t--){
+	    int n;
+	    cin>>n;
+	    priority_queue<int,vector<int>,greater<int> >pq;
+	    for(int i=0;i<n;i++) {
+	        int ele;
+	        cin>>ele;
+	        pq.push(ele);
+	    }
+	    ll min_cost=0;
+	    while(pq.size()>1){
+	        int x=pq.top();
+	        pq.pop();
+	        int y=pq.top();
+	        pq.pop();
+	        min_cost+=x+y;
+	        pq.push(x+y);
+	    }
+	    cout<<min_cost<<"\n";
+	}
+	return 0;
+}
+
+Que5:
