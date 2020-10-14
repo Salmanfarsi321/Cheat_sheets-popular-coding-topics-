@@ -119,4 +119,38 @@ int main()
 	return 0;
 }
 
-Que5:
+Que5: Maximum sum combinations
+
+class  pairhash {  // amateurish hash function for pair of integers
+public:
+    size_t operator()(const pair<int,int>& p) const {
+        return hash<int>()(p.first) ^ hash<int>()(p.second);
+    }
+};
+
+vector<int> Solution::solve(vector<int> &A, vector<int> &B, int k) {
+    vector<int>ans;
+    int n = A.size();
+    sort(A.begin(),A.end());
+    sort(B.begin(),B.end());
+    int i=n-1,j=n-1;
+    priority_queue<pair<int,pair<int,int> >>pq;
+    unordered_set<pair<int,int>,pairhash >set;
+    pq.push({A[i]+A[j],{i,j}});
+    while(!pq.empty()){
+        ans.push_back(pq.top().first);
+        if(ans.size() == k) break;
+        int x = pq.top().second.first;
+        int y = pq.top().second.second;
+        pq.pop();
+        if(x>=0 && set.find({x-1,y}) == set.end()){
+            pq.push({A[x-1]+A[y],{x-1,y}});
+            set.insert({x-1,y});
+        }
+        if(y>=0 && set.find({x,y-1}) == set.end()){
+            pq.push({A[x]+A[y-1],{x,y-1}});
+            set.insert({x,y-1});
+        }
+    }
+    return ans;
+}
