@@ -1,7 +1,939 @@
 
 ------------------------------------------------------------------------------Array--------------------------------------------------------------------------------
 
-1) Spiral matrix traversal
+1) Minimum steps in infinite grid
+
+You are in an infinite 2D grid where you can move in any of the 8 directions
+    (x,y) to 
+    (x+1, y), 
+    (x - 1, y), 
+    (x, y+1), 
+    (x, y-1), 
+    (x-1, y-1), 
+    (x+1,y+1), 
+    (x-1,y+1), 
+    (x+1,y-1) 
+You are given a sequence of points and the order in which you need to cover the points.. 
+Give the minimum number of steps in which you can achieve it. You start from the first point.
+
+int Solution::coverPoints(vector<int> &A, vector<int> &B) 
+{
+    int n=A.size();
+    int steps=0;
+    for(int i=0;i<n-1;i++)
+    {
+        steps+=max(abs(A[i+1]-A[i]),abs(B[i+1]-B[i]));
+    }
+    return steps;
+}
+
+
+2) Add one to the number
+
+Given a non-negative number represented as an array of digits,
+add 1 to the number ( increment the number represented by the digits ).
+The digits are stored such that the most significant digit is at the head of the list.
+
+Example:
+
+If the vector has [1, 2, 3]
+
+the returned vector should be [1, 2, 4]
+
+as 123 + 1 = 124.
+
+vector<int> plusOne(vector<int> &digits) {
+
+            reverse(digits.begin(), digits.end());   // makes life easier
+            vector<int> ans;
+            int carry = 1;
+            for (int i = 0; i < digits.size(); i++) {
+                int sum = digits[i] + carry;
+                ans.push_back(sum%10);
+                carry = sum / 10;
+            }
+            while (carry) {
+                ans.push_back(carry%10);
+                carry /= 10;
+            }
+            while (ans[ans.size() - 1] == 0 && ans.size() > 1) {
+                ans.pop_back();
+            }
+            reverse(ans.begin(), ans.end());
+            reverse(digits.begin(), digits.end());
+            return ans;
+  }
+
+
+(3) Max sum contiguous subarray
+
+Find the contiguous subarray within an array, A of length N which has the largest sum.
+
+Input 1:
+    A = [1, 2, 3, 4, -10]
+
+Output 1:
+    10
+
+Explanation 1:
+    The subarray [1, 2, 3, 4] has the maximum possible sum of 10.
+
+Input 2:
+    A = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+
+Output 2:
+    6
+
+int Solution::maxSubArray(const vector<int> &A) 
+{
+    int n=A.size();
+    int curr_max=A[0],mx_so_far=A[0];
+    for(int i=1;i<n;i++)
+    {
+        curr_max=max(A[i],curr_max+A[i]);
+        mx_so_far=max(curr_max,mx_so_far);
+    }
+    return mx_so_far;
+}
+
+(4) Maximum Absolute difference		--->    Good one
+
+You are given an array of N integers, A1, A2 ,…, AN. Return maximum value of f(i, j) for all 1 ≤ i, j ≤ N.
+f(i, j) is defined as |A[i] - A[j]| + |i - j|, where |x| denotes absolute value of x.
+
+For example,
+
+A=[1, 3, -1]
+
+f(1, 1) = f(2, 2) = f(3, 3) = 0
+f(1, 2) = f(2, 1) = |1 - 3| + |1 - 2| = 3
+f(1, 3) = f(3, 1) = |1 - (-1)| + |1 - 3| = 4
+f(2, 3) = f(3, 2) = |3 - (-1)| + |2 - 3| = 5
+
+So, we return 5.
+
+f(i, j) = |A[i] - A[j]| + |i - j| can be written in 4 ways (Since we are looking at max value, we don’t even care if the value becomes negative as long as we are 
+also covering the max value in some way).
+
+(A[i] + i) - (A[j] + j)
+-(A[i] - i) + (A[j] - j) 
+(A[i] - i) - (A[j] - j) 
+(-A[i] - i) + (A[j] + j) = -(A[i] + i) + (A[j] + j)
+Note that case 1 and 4 are equivalent and so are case 2 and 3.
+
+We can construct two arrays with values: A[i] + i and A[i] - i. Then, for above 2 cases, we find the maximum value possible. For that, we just have to store 
+minimum and maximum values of expressions A[i] + i and A[i] - i for all i.
+
+int Solution::maxArr(vector<int> &A) {
+    int ans = 0, n = A.size(); 
+    
+    int max1 = INT_MIN, max2 = INT_MIN;
+    int min1 = INT_MAX, min2 = INT_MAX;
+    
+    for(int i = 0; i < n; i++){
+        max1 = max(max1, A[i] + i);
+        max2 = max(max2, A[i] - i);
+        min1 = min(min1, A[i] + i);
+        min2 = min(min2, A[i] - i);
+    }   
+    ans = max(ans, max2 - min2);
+    ans = max(ans, max1 - min1);
+    return ans;
+}
+
+
+(5) Partitions		----> very nice problem
+
+You are given a 1D integer array B containing A integers.
+
+Count the number of ways to split all the elements of the array into 3 contiguous parts so that the sum of elements in each part is the same.
+
+Such that : sum(B[1],..B[i]) = sum(B[i+1],...B[j]) = sum(B[j+1],...B[n])
+
+#define ll long long
+
+int Solution::solve(int A, vector<int> &B) {
+    ll sum = 0;
+    for(auto ele : B) sum += ele;
+    if(sum%3 !=0) return 0;
+    sum = sum/3;
+    ll cnt = 0,pre = 0,ans=0;
+    for(int i=0;i<A-1;i++){
+        pre += B[i];
+        if(pre == 2*sum && i>0) ans += cnt;
+        if(pre == sum) cnt++;
+    }
+    return ans;
+}
+
+
+(6) Flip	---> nice
+
+You are given a binary string(i.e. with characters 0 and 1) S consisting of characters S1, S2, …, SN. In a single operation, you can choose two indices L and R 
+such that 1 ≤ L ≤ R ≤ N and flip the characters SL, SL+1, …, SR. By flipping, we mean change character 0 to 1 and vice-versa.
+
+Your aim is to perform ATMOST one operation such that in final string number of 1s is maximised. If you don’t want to perform the operation, return an empty array. 
+Else, return an array consisting of two elements denoting L and R. If there are multiple solutions, return the lexicographically smallest pair of L and R.
+
+Notes:
+
+Pair (a, b) is lexicographically smaller than pair (c, d) if a < c or, if a == c and b < d.
+For example,
+
+S = 010
+
+Pair of [L, R] | Final string
+_______________|_____________
+[1 1]          | 110
+[1 2]          | 100
+[1 3]          | 101
+[2 2]          | 000
+[2 3]          | 001
+
+We see that two pairs [1, 1] and [1, 3] give same number of 1s in final string. So, we return [1,1]
+
+
+//solution
+It used Kadane algorithm for maximum sum subarray. The idea is related to fact that when 0 is flipped, +1 is added to the number of 1's, when 1 is flipped -1 is substracted from the number of 1's. We try to maximize total gain from flip of some range [i,j].
+The algorithm search the max sum subarray of array which contains what is the gain when give index is flipped.
+
+
+vector<int> Solution::flip(string A) {
+    int n = A.size();
+    vector<int>arr(n);
+    for(int i=0;i<n;i++){
+        arr[i] = (A[i] == '1') ? -1 : 1;
+    }
+    int mx_so_far = 0,mx_end = 0;
+    int s = 0,start=-1,end=-1;
+    for(int i=0;i<n;i++){
+        mx_end += arr[i];
+        if(mx_end < 0) {
+            mx_end = 0;
+            s = i+1;
+        }
+        if(mx_so_far < mx_end) {
+            mx_so_far = mx_end;
+            start = s;
+            end = i;
+        }
+    }
+    vector<int>ans;
+    if(start == -1) return ans;
+    else{
+        ans.push_back(start+1);
+        ans.push_back(end+1);
+    }
+    return ans;
+}
+
+
+(7) Triplets with sum between given range   ---> Hard (interesting problem)
+
+Que: Find if there is a triplet with sum between 1 and 2
+
+int Solution::solve(vector<string>&A) {
+double maxa1 = INT_MIN, maxa2 = INT_MIN, maxa3 = INT_MIN, mina1 = INT_MAX, mina2 = INT_MIN;
+double minb1 = INT_MAX, minb2 = INT_MAX;
+double minc1 = INT_MAX;
+// find required maximums and minimums
+for (auto x : A) {
+double num = stod(x);
+if (num > 0 && num < 0.6) {
+if (maxa1 < num) {
+maxa3 = maxa2;
+maxa2 = maxa1;
+maxa1 = num;
+}else if (maxa2 < num && num != maxa1) {
+maxa2 = num;
+}else if (maxa3 < num && num != maxa2 && num != maxa1) {
+maxa3 = num;
+}
+if (mina1 > num) {
+mina2 = mina1;
+mina1 = num;
+} else if (mina2 > num && num != mina1) {
+mina2 = num;
+}
+} else if (num >= 0.6 && num <= 1) {
+if (minb1 > num) {
+minb2 = minb1;
+minb1 = num;
+} else if (minb2 > num && num != minb1) {
+minb2 = num;
+}
+} else {
+if (minc1 > num) {
+minc1 = num;
+}
+}
+}
+// A A A —> UNDERFLOW
+// A A B —> 2 CASES UNDERFLOW AND OVERFLOW
+// A A C —> OVERFLOW
+// A B B —> OVERFLOW
+// A B C —> OVERFLOW
+if (maxa1 != INT_MIN && maxa2 != INT_MIN && maxa3 != INT_MIN) {
+double sum = maxa1 + maxa2 + maxa3;
+if (sum > 1 && sum < 2) {
+return 1;
+}
+}
+if (maxa1 != INT_MIN && maxa2 != INT_MIN && mina1 != INT_MAX && mina2 != INT_MAX && minb1 != INT_MAX) {
+double sum = maxa1 + maxa2 + minb1;
+if (sum > 1 && sum < 2) {
+return 1;
+}
+sum = mina1 + mina2 + minb1;
+if (sum > 1 && sum < 2) {
+return 1;
+}
+}
+if (mina1 != INT_MAX && mina2 != INT_MAX && minc1 != INT_MAX) {
+double sum = mina1 + mina2 + minc1;
+if (sum > 1 && sum < 2) {
+return 1;
+}
+}
+if (mina1 != INT_MAX && minb1 != INT_MAX && minb2 != INT_MAX) {
+double sum = mina1 + minb2 + minb1;
+if (sum > 1 && sum < 2) {
+return 1;
+}
+}
+if (mina1 != INT_MAX && minb1 != INT_MAX && minc1 != INT_MAX) {
+double sum = mina1 + minb1 + minc1;
+if (sum > 1 && sum < 2) {
+return 1;
+}
+}
+return 0;
+}
+
+
+(8) Find duplicate in an array
+
+Given a read only array of n + 1 integers between 1 and n, find one number that repeats in linear time using less than O(n) space and
+traversing the stream sequentially O(1) times.
+Sample Input:
+
+[3 4 1 4 1]
+Sample Output:
+
+1
+
+int Solution::repeatedNumber(const vector<int> &A) 
+{
+     int tortoise = nums[0];
+    int hare = nums[0];
+    do {
+    tortoise = nums[tortoise];
+    hare = nums[nums[hare]];
+    } while (tortoise != hare);
+
+
+    tortoise = nums[0];
+    while (tortoise != hare) {
+    tortoise = nums[tortoise];
+     hare = nums[hare];
+    }
+
+return hare;
+}
+
+
+//Bad solution --> O(n) space
+int Solution::repeatedNumber(const vector<int> &A) 
+{
+   int n=A.size();
+   bool visited[n];
+   memset(visited,false,sizeof(visited));
+   int ans;
+   for(int i=0;i<n;i++)
+   {
+       if(!visited[A[i]])
+       visited[A[i]]=true;
+       else
+       ans=A[i];
+   }
+   return ans;
+}
+
+
+(9) Maximum consecutive gap
+
+
+
+
+
+
+
+(10) Noble integer
+
+Que: Find if number of integers greater than an element of array is equal to the element itself
+
+int Solution::solve(vector<int>& arr) {
+    int n = arr.size();
+    sort(arr.begin(),arr.end());
+    for(int i=0;i<n;i++){
+        while(i+1<n && arr[i] == arr[i+1]) i++;
+        int gt = n-i-1;
+        if( gt == arr[i]) return 1;
+    }
+    return -1;
+}
+
+
+(11) Wave array
+
+Que: Given an array of integers, sort the array into a wave like array and return it,
+In other words, arrange the elements into a sequence such that a1 >= a2 <= a3 >= a4 <= a5.....
+
+Example
+
+Given [1, 2, 3, 4]
+
+One possible answer : [2, 1, 4, 3]
+Another possible answer : [4, 1, 3, 2]
+
+vector<int> Solution::wave(vector<int> &A) {
+    sort(A.begin(),A.end());
+    for(int i=0;i<A.size()-1;i+=2){
+        swap(A[i],A[i+1]);
+    }
+    return A;
+}
+
+
+(12) Hotels booking possible  ---> Minimum no of platforms
+
+A hotel manager has to process N advance bookings of rooms for the next season. His hotel has C rooms. Bookings contain an arrival date 
+and a departure date. He wants to find out whether there are enough rooms in the hotel to satisfy the demand. Write a program that solves this
+problem in time O(N log N).
+
+bool Solution::hotel(vector<int> &arrive, vector<int> &depart, int K) {
+    int n=arrive.size();
+    sort(arrive.begin(),arrive.end());
+    sort(depart.begin(),depart.end());
+    int i=1,j=0,cnt=1,ans=1;
+    while(i<n && j<n){
+       if(arrive[i]<depart[j]){
+           cnt++;
+           i++;
+       }
+       else if(arrive[i]>=depart[j]){
+           cnt--;
+           j++;
+       }
+       ans=max(ans,cnt);
+    }
+    if(K>=ans) return 1;
+    return 0;
+}
+
+
+(13) Maximum unsorted subarray
+
+You are given an array (zero indexed) of N non-negative integers, A0, A1 ,…, AN-1.
+Find the minimum sub array Al, Al+1 ,…, Ar so if we sort(in ascending order) that sub array, then the whole array should get sorted.
+If A is already sorted, output -1.
+
+Example :
+
+Input 1:
+
+A = [1, 3, 2, 4, 5]
+
+Return: [1, 2]
+
+Input 2:
+
+A = [1, 2, 3, 4, 5]
+
+Return: [-1] 
+
+
+//Requires extra space
+vector<int>Solution::subUnsort(vector<int>& A){
+    vector<int>ans;
+    int n = A.size();
+    vector<int>left(n),right(n);
+    left[0] = A[0];
+    for(int i=1;i<n;i++) left[i] = max(left[i-1],A[i]);
+    right[n-1] = A[n-1];
+    for(int i=n-2;i>=0;i--) right[i] = min(right[i+1],A[i]);
+    
+    int start = -1,end = -1;
+    for(int i=0;i<n;i++){
+        if(right[i] != A[i]) {
+            start = i;
+            break;
+        }
+    }
+    
+    for(int i=n-1;i>=0;i--){
+        if(left[i] != A[i]) {
+            end = i;
+            break;
+        }
+    }
+    if(start == -1 && end == -1){
+        ans.push_back(-1);
+        return ans;
+    }
+    ans.push_back(start);
+    ans.push_back(end);
+    return ans;
+}
+
+//Efficient approach ( less space complexity)
+
+vector<int> Solution::subUnsort(vector<int> &A){
+	vector<int> ans;
+	int n = A.size();
+	int i = 0, j = n-1;
+	while(i< n - 1 and A[i] <= A[i + 1]){
+		i++;
+	}
+	while(j > 0 and A[j] >= A[j - 1]){
+		j--;
+	}
+	if(i == n - 1){ // if array is already sorted, output -1
+		ans.push_back(-1);
+		return ans;
+	}
+	int mn = A[i + 1], mx = A[i + 1];
+	for(int k = i; k <= j; k++){
+		mx = max(mx, A[k]);
+		mn = min(mn, A[k]);
+	}
+	int l = 0, r = n - 1;
+	while(A[l] <= mn and l <= i){
+	   	l++;
+	}
+	while(A[r] >= mx and r >= j){
+		r--;
+	}
+	ans.push_back(l);
+	ans.push_back(r);
+	return ans;
+}
+
+(14) Max distance	---> Nice one
+
+Given an array A of integers, find the maximum of j - i subjected to the constraint of A[i] <= A[j].
+
+int Solution::maximumGap(const vector<int> &num) {
+    int n=num.size();
+    vector<pair<int,int> >v;
+    for(int i=0;i<n;i++) v.push_back({num[i],i});
+    sort(v.begin(),v.end());
+    //precompute the sufffix array to get the maximum index j for i in O(1)
+    vector<int>suff(n);
+    suff[n-1] = v[n-1].second;
+    for(int i=n-2;i>=0;i--){
+        suff[i] = max(suff[i+1],v[i].second);
+    }
+    int ans=0;
+    for(int i=0;i<n-1;i++){
+        ans = max(ans,suff[i+1]-v[i].second);
+    }
+    return ans;
+}
+
+//Array simulation
+
+(15) Spiral order matrix 2
+
+Given an integer A, generate a square matrix filled with elements from 1 to A^2 in spiral order.
+
+vector<vector<int> > Solution::generateMatrix(int A) {
+    vector<vector<int> >ans(A,vector<int>(A));
+    int i=0,n=A,val=1;
+    while(i<n){
+        for(int k=i;k<n;k++)
+        ans[i][k]=val++;
+        for(int k=i+1;k<n;k++)
+        ans[k][n-1]=val++;
+        for(int k=n-2;k>=i;k--)
+        ans[n-1][k]=val++;
+        for(int k=n-2;k>i;k--)
+        ans[k][i]=val++;
+        i++;
+        n--;
+    }
+    return ans;
+}
+
+(16) Pascal triangle
+
+Given numRows, generate the first numRows of Pascal’s triangle.
+
+Pascal’s triangle : To generate A[C] in row R, sum up A’[C] and A’[C-1] from previous row R - 1.
+
+Example:
+
+Given numRows = 5,
+
+Return
+
+[
+     [1],
+     [1,1],
+     [1,2,1],
+     [1,3,3,1],
+     [1,4,6,4,1]
+]
+
+
+vector<vector<int> > Solution::solve(int A) {
+    vector<vector<int> >temp;
+    if(A==0) return temp;
+    vector<vector<int> >ans(A);
+    ans[0].push_back(1);
+    for(int i=1;i<A;i++){
+        ans[i].push_back(1);
+        for(int j=1;j<i;j++)
+        ans[i].push_back(ans[i-1][j-1]+ans[i-1][j]);
+        ans[i].push_back(1);
+    }
+    return ans;
+}
+
+
+(17) Kth pascal's triangle
+
+Given an index k, return the kth row of the Pascal’s triangle.
+
+Pascal’s triangle : To generate A[C] in row R, sum up A’[C] and A’[C-1] from previous row R - 1.
+
+Example:
+
+Input : k = 3
+
+Return : [1,3,3,1]
+
+vector<int> Solution::getRow(int A) {
+    vector<int>ans;
+    int n=1;
+    ans.push_back(1);
+    for(int i=0;i<A;i++){
+        n=(n*(A-i))/(i+1);
+        ans.push_back(n);
+    }
+    return ans;
+}
+
+
+(18) Anti diagonals
+
+
+
+
+(19) Largest number
+
+Given a list of non negative integers, arrange them such that they form the largest number.
+
+For example:
+
+Given [3, 30, 34, 5, 9], the largest formed number is 9534330.
+
+bool mycomp(string x,string y){
+    string xy=x.append(y);
+    string yx=y.append(x);
+    return xy>yx;
+}
+
+string Solution::largestNumber(const vector<int> &A) 
+{
+    string ans="";
+    vector<string>b;
+    for(int i=0;i<A.size();i++)
+    b.push_back(to_string(A[i]));
+    sort(b.begin(),b.end(),mycomp);
+    for(int i=0;i<b.size();i++)
+    ans+=b[i];
+    return ans;
+}
+
+(20) Rotate matrix
+
+You are given an n x n 2D matrix representing an image.
+
+Rotate the image by 90 degrees (clockwise).
+
+You need to do this in place.
+
+Note that if you end up using an additional array, you will only receive partial score.
+
+Example:
+
+If the array is
+
+[
+    [1, 2],
+    [3, 4]
+]
+Then the rotated array becomes:
+
+[
+    [3, 1],
+    [4, 2]
+]
+
+void Solution::rotate(vector<vector<int> > &a) {
+    int n=a.size();
+    for(int i=0;i<n;i++){
+        for(int j=i;j<n;j++){
+            swap(a[i][j],a[j][i]);
+        }
+    }
+    for(int i=0;i<n;i++)
+    reverse(a[i].begin(),a[i].end());
+}
+
+(21) Next permutation		--->  Love this
+
+Implement the next permutation, which rearranges numbers into the numerically next greater permutation of numbers for a given array A of size N.
+
+If such arrangement is not possible, it must be rearranged as the lowest possible order i.e., sorted in an ascending order.
+
+Input 1:
+    A = [1, 2, 3]
+
+Output 1:
+    [1, 3, 2]
+
+Input 2:
+    A = [3, 2, 1]
+
+Output 2:
+    [1, 2, 3]
+
+Input 3:
+    A = [1, 1, 5]
+
+Output 3:
+    [1, 5, 1]
+
+Input 4:
+    A = [20, 50, 113]
+
+Output 4:
+    [20, 113, 50]
+
+The suffix which gets affected is in a descending order before the change.
+
+A swap with the smaller element happens and then we reverse the affected suffix.
+
+    1 2 3 -> 1 3 2   // Suffix being just the 3. 
+
+    1 2 3 6 5 4  -> 1 2 4 3 5 6 // Suffix being 6 5 4 in this case. 
+
+vector<int> Solution::nextPermutation(vector<int> &nums) {
+    int n=nums.size(),i,j;
+       if(n==1) return nums;
+       for(i=n-2;i>=0;i--){
+           if(nums[i]<nums[i+1])
+               break;
+        }
+        if(i>=0){
+        for(j=n-1;j>=0;j--){
+            if(nums[j]>nums[i])
+                break;
+        }
+        swap(nums[j],nums[i]);
+        }
+        reverse(nums.begin()+i+1,nums.end());
+        return nums;
+}
+
+
+(22) Merge Intervals		---> Beautiful approach
+
+Given a set of non-overlapping intervals, insert a new interval into the intervals (merge if necessary).
+
+You may assume that the intervals were initially sorted according to their start times.
+
+Example 1:
+
+Given intervals [1,3],[6,9] insert and merge [2,5] would result in [1,5],[6,9].
+
+Example 2:
+
+Given [1,2],[3,5],[6,7],[8,10],[12,16], insert and merge [4,9] would result in [1,2],[3,10],[12,16].
+
+This is because the new interval [4,9] overlaps with [3,5],[6,7],[8,10].
+
+Make sure the returned intervals are also sorted.
+
+bool mycomp(Interval a,Interval b){
+    return a.start<b.start;
+} 
+ 
+vector<Interval> Solution::insert(vector<Interval> &intervals, Interval newInterval) 
+{
+    intervals.push_back(newInterval);
+    int n=intervals.size();
+    sort(intervals.begin(),intervals.end(),mycomp);
+    vector<Interval>res;
+    res.push_back(intervals[0]);
+    for(int i=1;i<n;i++){
+        if(intervals[i].start<=res[res.size()-1].end)
+        res[res.size()-1].end=max(res[res.size()-1].end,intervals[i].end);
+        else
+        res.push_back(intervals[i]);
+    }
+    return res;
+}
+
+
+(23) Merge overlapping intervals	(Almost same as above)
+
+Given a collection of intervals, merge all overlapping intervals.
+
+For example:
+
+Given [1,3],[2,6],[8,10],[15,18],
+
+return [1,6],[8,10],[15,18].
+
+Make sure the returned intervals are sorted.
+
+bool mycomp(Interval a,Interval b){
+    return a.start<b.start;
+} 
+ 
+vector<Interval> Solution::merge(vector<Interval> &A) {
+    sort(A.begin(),A.end(),mycomp);
+    vector<Interval>res;
+    res.push_back(A[0]);
+    for(int i=1;i<A.size();i++){
+        if(A[i].start<=res[res.size()-1].end)
+        res[res.size()-1].end=max(res[res.size()-1].end,A[i].end);
+        else
+        res.push_back(A[i]);
+    }
+    return res;
+}
+
+
+(24) Set matrix zeros	---> yet another beautiful question
+
+Given a matrix, A of size M x N of 0s and 1s. If an element is 0, set its entire row and column to 0.
+
+Note: This will be evaluated on the extra memory used. Try to minimize the space and time complexity.
+
+void Solution::setZeroes(vector<vector<int> > &A) {
+    int n=A.size();
+    int m=A[0].size();
+    bool first_col=false,first_row=false;
+    for(int i=0;i<n;i++){
+        if(A[i][0]==0) {
+            first_col=true;
+            break;
+        }
+    }
+    for(int i=0;i<m;i++){
+        if(A[0][i]==0){
+            first_row=true;
+            break;
+        }
+    }
+    for(int i=1;i<n;i++){
+        for(int j=1;j<m;j++){
+            if(A[i][j]==0){
+                A[0][j]=0;
+                A[i][0]=0;
+            }
+        }
+    }
+    for(int i=1;i<n;i++){
+        for(int j=1;j<m;j++){
+            if(A[0][j]==0 || A[i][0]==0) A[i][j]=0;
+        }
+    }
+    if(first_row){
+        for(int i=0;i<m;i++){
+            A[0][i]=0;
+        }
+    }
+    if(first_col){
+        for(int i=0;i<n;i++){
+            A[i][0]=0;
+        }
+    }
+}
+
+
+(25) First missing integer		--> frequently asked in interviews
+
+Given an unsorted integer array, find the first missing positive integer.
+
+Example:
+
+Given [1,2,0] return 3,
+
+[3,4,-1,1] return 2,
+
+[-8, -7, -6] returns 1
+
+Your algorithm should run in O(n) time and use constant space.
+
+int Solution::firstMissingPositive(vector<int> &num) {
+    int n=num.size();
+    for(int i=0;i<n;i++){
+        if(1<=num[i] && num[i]<=n){
+            	int pos=num[i]-1;
+            	if(num[pos]!=num[i]){
+            	swap(num[pos],num[i]);
+            	i--;
+            }
+        }
+    }
+    for(int i=0;i<n;i++){
+        if(num[i]!=i+1)
+        return i+1;
+    }
+    return n+1;
+}
+
+
+(26) Repeat and missing number array	--> Approach is nice
+
+    //Approach
+    Sum(Actual) = Sum(1...N) + A - B
+
+    Sum(Actual) - Sum(1...N) = A - B. 
+
+    Sum(Actual Squares) = Sum(1^2 ... N^2) + A^2 - B^2
+
+    Sum(Actual Squares) - Sum(1^2 ... N^2) = (A - B)(A + B) 
+
+    = (Sum(Actual) - Sum(1...N)) ( A + B). 
+
+vector<int> Solution::repeatedNumber(const vector<int> &A) {
+    vector<int>ans;
+    int n=A.size();
+    long long sum=0,square_sum=0,temp;
+    for(int i=0;i<n;i++){
+        temp=A[i];
+        sum+=temp;
+        square_sum+=temp*temp;
+        sum-=(i+1);
+        square_sum-=(long long)(i+1)*(long long)(i+1);
+    }
+    square_sum/=sum;
+    int miss=((int)(square_sum+sum))/2;
+    int rep=miss-sum;
+    ans.push_back(miss);
+    ans.push_back(rep);
+    return ans;
+}
+
+--------------------------------------------------------------------Miscellaneous--------------------------------------------------------------------------------------
+
+1) Spiral matrix traversal	--> Important
 
 vector<int> spiralOrder(vector<vector<int>>& matrix) 
     {
@@ -65,3 +997,260 @@ void anti_rotate(vector<vector<int> > &matrix) {
             swap(matrix[i][j], matrix[j][i]);
     }
 }
+
+
+(3) Minimum lights to activate	--->Important
+
+int Solution::solve(vector<int> &A, int B) {
+    int n = A.size();
+    vector<int>dp(n+1,0);
+    for(int i=0;i<n;i++){
+        if(A[i]!=0){
+            int left = max(i-(B-1),0);
+            int right = min(i+(B-1),n);
+            dp[left] =  right;
+        }
+    }
+    for(int i=1;i<n;i++) dp[i] = max(dp[i],dp[i-1]);
+    int light=0;
+    for(int i=0;i<n;i++){
+        light++;
+        if(i >= dp[i])
+            return -1;
+        i = dp[i];
+    }
+    return light;
+}
+
+
+(4) Maximum sum triplet
+
+
+
+(5) Leaders in an array
+
+Given an integer array A containing N distinct integers, you have to find all the leaders in the array A.
+
+An element is leader if it is strictly greater than all the elements to its right side.
+
+NOTE:The rightmost element is always a leader.
+
+vector<int> Solution::solve(vector<int> &A) {
+    vector<int>ans;
+    int n = A.size();
+    vector<int>right(n);
+    right[n-1] = A[n-1];
+    for(int i=n-2;i>=0;i--){
+        right[i] = max(right[i+1],A[i]);
+    }
+    for(int i=0;i<n-1;i++){
+        if(A[i] > right[i+1]) ans.push_back(A[i]);
+    }
+    ans.push_back(A[n-1]);
+    return ans;
+}
+
+
+(6) Pick from both sides
+
+Given an integer array A of size N.
+
+You can pick B elements from either left or right end of the array A to get maximum sum.
+
+Find and return this maximum possible sum.
+
+NOTE: Suppose B = 4 and array A contains 10 elements then:
+
+You can pick first four elements or can pick last four elements or can pick 1 from front and 3 from back etc . you need to return the maximum possible sum of elements you can pick.
+
+
+int Solution::solve(vector<int> &A, int B) {
+   int n = A.size();
+   vector<int>pre(n),suff(n);
+   pre[0] = A[0];
+   for(int i=1;i<n;i++) pre[i] = pre[i-1] + A[i];
+   suff[n-1] = A[n-1];
+   for(int i=n-2;i>=0;i--) suff[i] = suff[i+1] + A[i];
+   
+   int mx = INT_MIN;
+   for(int i=0;i<=B;i++){
+       int first = (i == 0) ? 0 : pre[i-1];
+       int second = (i == B) ? 0 : suff[n-B+i];
+       mx = max(mx,first+second);
+   }
+   return mx;
+} 
+
+(7) Sort array with squares
+
+Given a sorted array A containing N integers both positive and negative.
+You need to create another array containing the squares of all the elements in A and return it in non-decreasing order.
+Try to this in O(N) time.
+
+vector<int> Solution::solve(vector<int> &A) {
+    int n = A.size();
+    vector<int>ans(n);
+    int i=0,j=A.size()-1;
+    n--;
+    while(i<=j){
+        if(abs(A[i]) > abs(A[j])){
+            ans[n--] = A[i]*A[i];
+            i++;
+        }
+        else{
+            ans[n--] = A[j]*A[j];
+            j--;
+        }
+    }
+    return ans;
+}
+
+(8) Balance array
+
+Given an integer array A of size N. You need to count the number of special elements in the given array.
+
+A element is special if removal of that element make the array balanced.
+
+Array will be balanced if sum of even index element equal to sum of odd index element.
+
+int Solution::solve(vector<int>&A) {
+    int n = A.size();
+    vector<int>pre_odd(n,0),pre_even(n,0);
+    for(int i=0;i<n;i++) {
+        if(i%2 == 0){
+            pre_even[i] = ((i == 0) ? 0 : pre_even[i-1]) + A[i];
+            pre_odd[i] = (i == 0) ? 0 : pre_odd[i-1];
+        }
+        else{
+            pre_odd[i] = pre_odd[i-1] + A[i];
+            pre_even[i] = pre_even[i-1];
+        }
+    }
+    int cnt = 0;
+    for(int i=0;i<n;i++){
+        int odd = ((i == 0) ? 0 : pre_odd[i-1])+ pre_even[n-1] - pre_even[i];
+        int even = ((i == 0) ? 0 : pre_even[i-1]) + pre_odd[n-1] - pre_odd[i];
+        if(even == odd) cnt++;
+    }
+    return cnt;
+}
+
+
+(9) Max-Min
+
+Problem Description
+
+Given an array A of size N. You need to find the sum of Maximum and Minimum element in the given array.
+
+NOTE: You should make minimum number of comparisons.
+
+Naive Approach:
+
+int Solution::solve(vector<int> &A) {
+    int mn = INT_MAX;
+    int mx = INT_MIN;
+    for(int i=0;i<A.size();i++){
+        mn = min(mn,A[i]);
+        mx = max(mx,A[i]);
+    }
+    return mn+mx;
+}
+
+//Efficient approach in terms of no of comparisions required
+int mx(vector<int>& A,int l,int r){
+    if(l == r) return A[l];
+    if(l+1 == r) return max(A[l],A[r]);
+    int mid = (l + (r-l)/2);
+    return max(mx(A,l,mid),mx(A,mid+1,r));
+}
+
+int mn(vector<int>& A,int l,int r){
+    if(l == r) return A[l];
+    if(l+1 == r) return min(A[l],A[r]);
+    int mid = (l + (r-l)/2);
+    return min(mn(A,l,mid),mn(A,mid+1,r));
+}
+
+int Solution::solve(vector<int> &A) {
+    return mx(A,0,A.size()-1)+mn(A,0,A.size()-1);
+}
+
+(10) Insert,delete,get random in O(1)	---> Important
+
+    unordered_map<int,int>m;
+    vector<int>v;
+    
+    /** Inserts a value to the set. Returns true if the set did not already contain the specified element. */
+    bool insert(int val) 
+    {
+        if(m.find(val)!=m.end()) return false;
+        v.push_back(val);
+        m[val]=v.size()-1;
+        return true;
+    }
+    
+    /** Removes a value from the set. Returns true if the set contained the specified element. */
+    bool remove(int val)
+    {
+        if(m.find(val)==m.end()) return false;
+        int last=v.back();
+        m[last]=m[val];
+        v[m[val]]=last;
+        v.pop_back();
+        m.erase(val);
+        return true;
+    }
+    
+    /** Get a random element from the set. */
+    int getRandom() 
+    {
+        return v[rand()%v.size()];
+    }
+
+
+
+(11) Majority element 2
+
+Given an integer array of size n, find all elements that appear more than ⌊ n/3 ⌋ times.
+
+Note: The algorithm should run in linear time and in O(1) space.
+
+Example 1:
+
+Input: [3,2,3]
+Output: [3]
+Example 2:
+
+Input: [1,1,1,3,3,2,2,2]
+Output: [1,2]
+
+vector<int> majorityElement(vector<int>& nums) {
+        vector<int>ans;
+        int n = nums.size();
+        int cnt1 = 0,cnt2 = 0;
+        int cand1 = INT_MAX,cand2 = INT_MAX;
+        for(int i=0;i<nums.size();i++){
+            if(cand1!=INT_MAX && cand1 == nums[i]) cnt1++;
+            else if(cand2!=INT_MAX && cand2 == nums[i]) cnt2++;
+            else if(cnt1 == 0){
+                cand1 = nums[i];
+                cnt1++;
+            }
+            else if(cnt2 == 0){
+                cand2 = nums[i];
+                cnt2++;
+            }
+            else{
+                cnt1--;
+                cnt2--;
+            }
+        }
+        cnt1 = 0,cnt2 = 0;
+        for(int i=0;i<n;i++){
+            if(cand1 == nums[i]) cnt1++;
+            else if(cand2 == nums[i]) cnt2++;
+        }
+        if(cnt1 > n/3) ans.push_back(cand1);
+        if(cnt2 > n/3) ans.push_back(cand2);
+        return ans;
+    }
